@@ -1,0 +1,15 @@
+.\obj\calibrate.o: Calibrate.c
+.\obj\calibrate.o: C:\Keil\ARM\ARMCC\bin\..\include\stdio.h
+.\obj\calibrate.o: C:\Keil\ARM\ARMCC\bin\..\include\stdlib.h
+.\obj\calibrate.o: retarget.h
+.\obj\calibrate.o: ..\AHRSLib\include\AHRSLib.h
+.\obj\calibrate.o: C:\Keil\ARM\ARMCC\bin\..\include\stdint.h
+.\obj\calibrate.o: Timer_Ctrl.h
+.\obj\calibrate.o: FlashCtrl.h
+.\obj\calibrate.o: Def.h
+.\obj\calibrate.o: Config.h
+.\obj\calibrate.o: C:\Keil\ARM\ARMCC\bin\..\include\stdbool.h
+.\obj\calibrate.o: Sensors.h
+.\obj\calibrate.o: Report.h
+.\obj\calibrate.o: LED.h
+.\obj\calibrate.o: RC.h

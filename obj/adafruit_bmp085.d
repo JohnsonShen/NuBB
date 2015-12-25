@@ -1,0 +1,11 @@
+.\obj\adafruit_bmp085.o: Adafruit_BMP085.c
+.\obj\adafruit_bmp085.o: C:\Keil\ARM\ARMCC\bin\..\include\math.h
+.\obj\adafruit_bmp085.o: Adafruit_BMP085.h
+.\obj\adafruit_bmp085.o: Def.h
+.\obj\adafruit_bmp085.o: Config.h
+.\obj\adafruit_bmp085.o: ..\AHRSLib\include\AHRSLib.h
+.\obj\adafruit_bmp085.o: C:\Keil\ARM\ARMCC\bin\..\include\stdint.h
+.\obj\adafruit_bmp085.o: C:\Keil\ARM\ARMCC\bin\..\include\stdbool.h
+.\obj\adafruit_bmp085.o: I2Cdev.h
+.\obj\adafruit_bmp085.o: Timer_Ctrl.h
+.\obj\adafruit_bmp085.o: Sensors.h

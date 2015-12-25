@@ -1,0 +1,10 @@
+.\obj\hmc5883l.o: hmc5883l.c
+.\obj\hmc5883l.o: C:\Keil\ARM\ARMCC\bin\..\include\stdio.h
+.\obj\hmc5883l.o: Config.h
+.\obj\hmc5883l.o: ..\AHRSLib\include\AHRSLib.h
+.\obj\hmc5883l.o: C:\Keil\ARM\ARMCC\bin\..\include\stdint.h
+.\obj\hmc5883l.o: hmc5883l.h
+.\obj\hmc5883l.o: Def.h
+.\obj\hmc5883l.o: C:\Keil\ARM\ARMCC\bin\..\include\stdbool.h
+.\obj\hmc5883l.o: Timer_Ctrl.h
+.\obj\hmc5883l.o: I2Cdev.h

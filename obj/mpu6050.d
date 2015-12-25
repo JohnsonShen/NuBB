@@ -1,0 +1,12 @@
+.\obj\mpu6050.o: MPU6050.c
+.\obj\mpu6050.o: C:\Keil\ARM\ARMCC\bin\..\include\stdio.h
+.\obj\mpu6050.o: C:\Keil\ARM\ARMCC\bin\..\include\stdlib.h
+.\obj\mpu6050.o: C:\Keil\ARM\ARMCC\bin\..\include\string.h
+.\obj\mpu6050.o: I2CDev.h
+.\obj\mpu6050.o: Def.h
+.\obj\mpu6050.o: Config.h
+.\obj\mpu6050.o: ..\AHRSLib\include\AHRSLib.h
+.\obj\mpu6050.o: C:\Keil\ARM\ARMCC\bin\..\include\stdint.h
+.\obj\mpu6050.o: C:\Keil\ARM\ARMCC\bin\..\include\stdbool.h
+.\obj\mpu6050.o: MPU6050.h
+.\obj\mpu6050.o: Timer_Ctrl.h
