@@ -27,7 +27,7 @@
 #define RC_ROLL_MID      1500
 #define RC_ROLL_MAX      1920
 #define RC_PITCH_MIN     1090
-#define RC_PITCH_MID     1552
+#define RC_PITCH_MID     1590
 #define RC_PITCH_MAX     1920
 
 #define RC_YAW_MIN       1090

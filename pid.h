@@ -112,9 +112,9 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #endif
 #define PID_YAW_RATE_INTEGRATION_LIMIT     500.0
 #ifdef ABROBOT
-#define PID_ROLL_KP  18.9f
-#define PID_ROLL_KI  2.15f
-#define PID_ROLL_KD  0.0f
+#define PID_ROLL_KP  LEVEL_KP_DC
+#define PID_ROLL_KI  LEVEL_KI_DC
+#define PID_ROLL_KD  LEVEL_KD_DC
 #else
 #define PID_ROLL_KP  LEVEL_KP_1806
 #define PID_ROLL_KI  LEVEL_KI_1806
@@ -133,9 +133,9 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #define PID_PITCH_INTEGRATION_LIMIT   20.0
 
 #ifdef ABROBOT
-#define PID_YAW_KP  0.54f
-#define PID_YAW_KI  0.04f
-#define PID_YAW_KD  0.7f
+#define PID_YAW_KP  18.9f
+#define PID_YAW_KI  2.15f
+#define PID_YAW_KD  0.0f
 #else
 #define PID_YAW_KP  0.0
 #define PID_YAW_KI  0.0
