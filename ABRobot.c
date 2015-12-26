@@ -434,7 +434,7 @@ void loop()
 	else
 		nvtUpdateAHRS(SENSOR_ACC|SENSOR_GYRO);
 
-	if((GetFrameCount()%18)==0)
+	if((GetFrameCount()%40)==0)
 		report_sensors();
 	
 	IncFrameCount(1);

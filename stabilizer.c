@@ -186,7 +186,6 @@ void commanderGetRPY()
 				dif = dif + 360;
 			else if(dif>180)
 				dif = dif - 360;
-			
 			eulerYawDesired = dif;
 		}
 		else 
@@ -226,7 +225,7 @@ void commanderGetThrust()
 	getRC(rcData);
 	rc_thrust = GetRCThrust();
 #ifdef ABROBOT
-  Actuator.actuatorThrust = (rcData[PITCH_CH] - RC_PITCH_MID)*30;
+  Actuator.actuatorThrust = (rcData[PITCH_CH] - RC_PITCH_MID)*10;
   speedDesired = Actuator.actuatorThrust/10;
 #else
 	if(checkArm()) {
@@ -283,8 +282,8 @@ static void distributePower(int16_t thrust, int16_t roll,
 
   int16_t actuator[2];
   MotorCal_t* MotorCal;
-  actuator[R] = -thrust + speed - pitch + roll - yaw;
-  actuator[L] = thrust -speed + pitch + roll - yaw;
+  actuator[R] = thrust + speed - pitch + roll + yaw;
+  actuator[L] = -thrust -speed + pitch + roll + yaw;
 
   MotorCal = GetMotorCal();
   actuator[R] = (actuator[R] + MotorCal->MotorOffset[R])*MotorCal->MotorScale[R];
@@ -479,10 +478,10 @@ void stabilizer()
   int16_t moveSpeedAvg;/*cm/sec*/
 #endif
   moveSpeedAvg = GetMoveSpeed();
-  if((moveSpeedAvg>-15)&&(moveSpeedAvg<15)) {
+  /*if((moveSpeedAvg>-15)&&(moveSpeedAvg<15)) {
     controllerResetYawRatePID();
 		//HoldHead();
-  }
+  }*/
 #endif
 #if STACK_BARO	
 	bool altHold =  GetAltHoldMode();
