@@ -26,7 +26,6 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #include "ssv7241.h"
 #include "RC_ssv.h"
 #include "motors.h"
-#include "gps.h"
 typedef struct {
 	int16_t rcData[RC_CHANS];
 	float  rssif;
@@ -44,6 +43,21 @@ typedef struct {
 char report_mode = REPORT_AHRS_EULER;
 char report_format = REPORT_FORMAT_TEXT;
 char stream_mode = STREAM_PAUSE;
+
+void report_ASIC(uint8_t buf0,uint8_t buf1,uint8_t buf2,uint8_t buf3,uint8_t buf4,
+									uint8_t buf5,uint8_t buf6,uint8_t buf7,uint8_t buf8,uint8_t buf9)
+{
+		notify_buf[0]=buf0;
+		notify_buf[1]=buf1;
+		notify_buf[2]=buf2;
+		notify_buf[3]=buf3;
+		notify_buf[4]=buf4;
+		notify_buf[5]=buf5;
+		notify_buf[6]=buf6;
+		notify_buf[7]=buf7;
+		notify_buf[8]=buf8;
+		notify_buf[9]=buf9;
+}
 
 void report_ahrs_euler()
 {

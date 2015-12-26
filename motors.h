@@ -1,19 +1,16 @@
 /*============================================================================*
- * O     O          __                   ______  __                           *
- *  \   /      /\  / /_      _    __    / /___/ / /_     _                    *
- *   [+]      /  \/ / \\    //__ / /__ / /____ / / \\   //                    *
- *  /   \    / /\  /   \\__// --/ /---/ /----// /   \\_//                     *
- * O     O  /_/  \/     \__/    \_\/ /_/     /_/ ____/_/                      *
+  ___     ___     ___            _                _                           *
+  /   \   | _ )   | _ \    ___   | |__     ___    | |_      o O O             *
+  | - |   | _ \   |   /   / _ \  | '_ \   / _ \   |  _|    o                  *
+  |_|_|   |___/   |_|_\   \___/  |_.__/   \___/   _\__|   TS__[O]             *
+_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
+"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'./o--000'             *
  *                                                                            *
+ * Auto Balance Robot controller firmware for Nuvoton Cortex M4 series        *
  *                                                                            *
- * Multi-Rotor controller firmware for Nuvoton Cortex M4 series               *
- *                                                                            *
- * Written by by T.L. Shen for Nuvoton Technology.                            *
+ * Written by T.L. Shen for Nuvoton Technology.                               *
  * tlshen@nuvoton.com/tzulan611126@gmail.com                                  *
  *                                                                            *
- * [2015/07/16] CP Lu                                                         *
- * 1. Add #define ESC_FREQ_UPDATE_FREQ_DIV_1000000 and MAX_PULSE_WIDTH        *
- * 2. Add PWM_GET_CNR(pwm, u32ChannelNum) macro                               *
  *============================================================================*
  */
 #ifndef __MOTORS_H__

@@ -1,14 +1,14 @@
 /*============================================================================*
- * O     O          __                   ______  __                           *
- *  \   /      /\  / /_      _    __    / /___/ / /_     _                    *
- *   [+]      /  \/ / \\    //__ / /__ / /____ / / \\   //                    *
- *  /   \    / /\  /   \\__// --/ /---/ /----// /   \\_//                     *
- * O     O  /_/  \/     \__/    \_\/ /_/     /_/ ____/_/                      *
+  ___     ___     ___            _                _                           *
+  /   \   | _ )   | _ \    ___   | |__     ___    | |_      o O O             *
+  | - |   | _ \   |   /   / _ \  | '_ \   / _ \   |  _|    o                  *
+  |_|_|   |___/   |_|_\   \___/  |_.__/   \___/   _\__|   TS__[O]             *
+_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
+"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'./o--000'             *
  *                                                                            *
+ * Auto Balance Robot controller firmware for Nuvoton Cortex M4 series        *
  *                                                                            *
- * Multi-Rotor controller firmware for Nuvoton Cortex M4 series               *
- *                                                                            *
- * Written by by T.L. Shen for Nuvoton Technology.                            *
+ * Written by T.L. Shen for Nuvoton Technology.                               *
  * tlshen@nuvoton.com/tzulan611126@gmail.com                                  *
  *                                                                            *
  *============================================================================*
@@ -40,6 +40,8 @@
 #define RX_ADDRESS_SIZE 2
 #define RX_ADDRESS_BASE (PID_BASE + PID_FIELD_SIZE + FIELD_VALID_SIZE)
 
+uint32_t read_code_ver(uint32_t u32add);
+void write_code_ver(uint32_t u32add,uint32_t u32data);
 void FlashInit(void);
 void UpdateBoardVersion(bool);
 uint32_t GetBoardVersion(void);

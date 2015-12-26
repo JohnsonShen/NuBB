@@ -44,6 +44,28 @@ float tfloat;
 // u32addr : 0-1024 (For 4KBytes Data Flash)
 // u32data : 0-0xFFFFFFFF (4Bytes)
 //============================================================================
+uint32_t read_code_ver(uint32_t u32add)
+{
+	uint32_t u32data;
+
+	SYS_UnlockReg();
+	FMC_Open();
+	u32data = FMC_Read(DATA_Flash_Start_ADD-(u32add*4));
+	FMC_Close();
+	SYS_LockReg();
+
+	return u32data;
+}
+void write_code_ver(uint32_t u32add,uint32_t u32data)
+{
+	SYS_UnlockReg();
+	FMC_Open();
+	FMC_ENABLE_AP_UPDATE();
+	FMC_Write(DATA_Flash_Start_ADD-(u32add*4),u32data);
+	FMC_DISABLE_AP_UPDATE();
+	FMC_Close();
+	SYS_LockReg();
+}
 void DATA_FLASH_Write(uint32_t u32addr,uint32_t u32data)
 {
 	uint32_t i=0;

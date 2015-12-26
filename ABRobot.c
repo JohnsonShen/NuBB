@@ -37,9 +37,9 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #include "LED.h"
 #include "battery.h"
 #include "motors.h"
-#include "gps.h"
 #include "IR.h"
 #include "Hall.h"
+#include "asic_ini.h"
 #ifdef OPTION_RC
 #include "RC.h"
 #include "RC_ssv.h"
@@ -50,11 +50,33 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 int freq=0;
 #endif
 #define MAG_INTERVAL 4
+#define code_version 0x00000900	//code version: 0.090
 extern RF_DATA RxData;
-extern uint32_t LED1_R, LED1_G, LED1_B, Blink;
+uint32_t COM_LED_R, COM_LED_G, COM_LED_B, COM_Blink,COM_LED_EN=0,code_ver,code_update;
 extern int16_t  motor_enable;
-uint8_t au8IR_CODE[4];
+extern int16_t speed[2];
+extern uint8_t BatteryPercent,charge,asic_ready;
+uint8_t au8IR_CODE[4],notify=0,notify_buf[10],keyin=0;
 
+void version_check(void)
+{
+		code_ver=read_code_ver(1+7168);
+		if (code_ver==0xffffffff)
+				write_code_ver(1+7168,code_version);
+		code_update=read_code_ver(2+7168);
+		if (code_update==0xffffffff)
+		{
+				write_code_ver(2+7168,0);
+		}
+		else
+		{
+				PD10=1; //asic off
+				asic_ready=0;
+			
+				keyin=1;
+		}
+		
+}
 uint32_t WaitDataReady(uint32_t u32DataNum)
 {
     int32_t i32TimeOutCnt;
@@ -69,7 +91,45 @@ uint32_t WaitDataReady(uint32_t u32DataNum)
 
     return 1;
 }
-
+void GPD_IRQHandler(void)
+{
+    /* To check if PB.2 interrupt occurred */
+    if(GPIO_GET_INT_FLAG(PD, BIT14))
+    {
+        GPIO_DisableInt(PD, 14);
+				GPIO_CLR_INT_FLAG(PD, BIT14);				
+				notify = 1;
+    }
+		else if(GPIO_GET_INT_FLAG(PD, BIT2))
+    {
+				int key_cnt=0;
+				uint8_t motor_temp;
+				GPIO_CLR_INT_FLAG(PD, BIT2);
+				motor_temp=motor_enable;
+				if (PD10==1)
+						keyin=1;
+				while (PD2==0)
+				{
+						motor_enable=0;
+						TIMER_Delay(TIMER0,1000);
+						key_cnt++;
+						if(key_cnt>2000)
+						{
+								PD10=1;
+								keyin=0;
+								asic_ready=0;
+								break;						
+						}
+				}
+				if (PD10==0)
+						motor_enable=motor_temp;
+    }
+		else
+    {
+        /* Un-expected interrupt. Just clear all PB interrupts */
+        PD->INTSRC = PD->INTSRC;
+    }
+}
 void setupSystemClock()
 {
 #ifdef M451
@@ -121,6 +181,13 @@ void setupCommandUART()
 	SYS_ResetModule(UART0_RST);
 	/* Configure UART0 and set UART0 Baudrate */
 	UART_Open(UART0, 115200);
+	
+	GPIO_SetMode(PD, BIT11, GPIO_MODE_OUTPUT);
+	PD11=1;
+	GPIO_SetMode(PD, BIT14, GPIO_MODE_INPUT);
+	GPIO_CLR_INT_FLAG(PD, BIT14);
+	GPIO_EnableInt(PD, 14, GPIO_INT_FALLING);
+	NVIC_EnableIRQ(GPD_IRQn);
 }
 
 S_RTC_TIME_DATA_T sWriteRTC, sReadRTC;
@@ -173,11 +240,13 @@ void setup()
 	setupRTC();
 	IR_init();
 	Laser_init();
+	asic_init();
 #ifdef GPS
 	setupGPS();
 #endif
 	I2C_Init();
 	FlashInit();
+	version_check();	
 	UpdateBoardVersion(false);
 #ifdef OPTION_RC
 	RC_Init();
@@ -196,6 +265,13 @@ void setup()
 }
 void CommandProcess()
 {
+	if ((notify==1)&&(PD11==0))
+	{
+		UART_Write(DEBUG_PORT,notify_buf,(notify_buf[1]+2));
+		notify=0;
+		PD11=1;
+		GPIO_EnableInt(PD, 14, GPIO_INT_FALLING);
+	}
 	// Read incoming control messages
 	if (Serial_available() >= 2)
 	{
@@ -304,24 +380,27 @@ void CommandProcess()
 								RxData.BUF[4] = buf[6];
 								RxData.num=5;
 						}
-						else if((buf[0] == 0x04)&&(buf[1] == 00)){
-								DEBUG_PORT->DAT = ((GetBattery()>>8) & 0xFF);
-								DEBUG_PORT->DAT = (GetBattery() & 0xFF);
-						}
+//						else if((buf[0] == 0x04)&&(buf[1] == 00)){
+//								DEBUG_PORT->DAT = ((GetBattery()>>8) & 0xFF);
+//								DEBUG_PORT->DAT = (GetBattery() & 0xFF);
+//						}
 						else if((buf[0] == 0x05)&&(buf[1] == 00)){								
+								if ((buf[2]==1)&&(PB14==1))
+										motor_enable=1;
+								else if ((buf[2]==0)&&(PB14==1))
+										motor_enable=0;
+						}
+						else if((buf[0] == 0x06)&&(buf[1] == 00)){								
 								RTC_SetDate((2000+buf[2]), buf[3], buf[4], buf[5]);
                 RTC_SetTime(buf[6], buf[7], buf[8], RTC_CLOCK_24, RTC_AM);
 						}
-						else if((buf[0] == 0x06)&&(buf[1] == 00)){								
-								motor_enable^=1;
-						}
-						UART_Write(DEBUG_PORT,buf,length);
+//						UART_Write(DEBUG_PORT,buf,length);
 				}
 				else
 				{
 						for(i=0;i<Serial_available();i++)
 								buf[i] = Serial_read();
-						UART_Write(DEBUG_PORT,buf,Serial_available());
+//						UART_Write(DEBUG_PORT,buf,Serial_available());
 				}
 		}
 		else if(start == 0x7A){ 
@@ -338,17 +417,17 @@ void CommandProcess()
 								au8IR_CODE[3] = buf[5];
 								SendIR(au8IR_CODE);
 						}
-						UART_Write(DEBUG_PORT,buf,length);
+//						UART_Write(DEBUG_PORT,buf,length);
 				}
 				else
 				{
 						for(i=0;i<Serial_available();i++)
 								buf[i] = Serial_read();
-						UART_Write(DEBUG_PORT,buf,Serial_available());
+//						UART_Write(DEBUG_PORT,buf,Serial_available());
 				}
 		}
 		else if(start == 0x3A){ 
-				char buf[10],i;
+				uint8_t buf[10],i;
 				int length = Serial_read();
 				if(WaitDataReady(length)==1)
 				{
@@ -359,13 +438,27 @@ void CommandProcess()
 								SYS_UnlockReg();
 								SYS_ResetChip();
 						}
-						UART_Write(DEBUG_PORT,buf,length);
+						else if((buf[0] == 0x01)&&(buf[1] == 01)){ 
+								buf[0]=0x3A;
+								buf[1]=6;
+								buf[2]=0x01;
+								buf[3]=0x01;
+								buf[4]=((code_ver>>24)&0xFF);
+								buf[5]=((code_ver>>16)&0xFF);
+								buf[6]=((code_ver>>8)&0xFF);
+								buf[7]=(code_ver&0xFF);
+								UART_Write(DEBUG_PORT,buf,8);
+						}
+						else if((buf[0] == 0x01)&&(buf[1] == 02)){ 
+								asic_ready=1;
+						}
+//						UART_Write(DEBUG_PORT,buf,length);
 				}
 				else
 				{
 						for(i=0;i<Serial_available();i++)
 								buf[i] = Serial_read();
-						UART_Write(DEBUG_PORT,buf,Serial_available());
+//						UART_Write(DEBUG_PORT,buf,Serial_available());
 				}
 		}
 		else if(start == 0x5A){ 
@@ -376,21 +469,48 @@ void CommandProcess()
 						for(i=0;i<length;i++)
 								buf[i] = Serial_read();
 						if((buf[0] == 0x01)&&(buf[1] == 00)){ 
-								PC10=(1-buf[2]);
+								PC10=buf[2];
 						}
 						else if((buf[0] == 0x01)&&(buf[1] == 01)){
-								LED1_R=buf[2];
-								LED1_G=buf[3];
-								LED1_B=buf[4];
-								Blink=buf[5];							
+								COM_LED_R=buf[2];
+								COM_LED_G=buf[3];
+								COM_LED_B=buf[4];
+								COM_Blink=buf[5];
+								COM_LED_EN=1;
+								if ((buf[2]==0)&&(buf[3]==0)&&(buf[4]==0))
+										COM_LED_EN=0;
 						}
-						UART_Write(DEBUG_PORT,buf,length);
+//						UART_Write(DEBUG_PORT,buf,length);
 				}
 				else
 				{
 						for(i=0;i<Serial_available();i++)
 								buf[i] = Serial_read();
-						UART_Write(DEBUG_PORT,buf,Serial_available());
+//						UART_Write(DEBUG_PORT,buf,Serial_available());
+				}
+		}
+		else if(start == 0x6A){ 
+				uint8_t buf[10],i;
+				int length = Serial_read();
+				if(WaitDataReady(length)==1)
+				{
+						for(i=0;i<length;i++)
+								buf[i] = Serial_read();
+						if((buf[0] == 0x01)&&(buf[1] == 01)){ 
+								buf[0]=0x6A;
+								buf[1]=4;
+								buf[2]=0x01;
+								buf[3]=0x01;
+								buf[4]=charge;
+								buf[5]=BatteryPercent;
+						}
+						UART_Write(DEBUG_PORT,buf,6);
+				}
+				else
+				{
+						for(i=0;i<Serial_available();i++)
+								buf[i] = Serial_read();
+//						UART_Write(DEBUG_PORT,buf,Serial_available());
 				}
 		}
 		else { 
@@ -409,6 +529,7 @@ void loop()
 	nextTick = getTickCount()+TICK_FRAME_PERIOD;
 //	RTC_GetDateAndTime(&sReadRTC);
 	CommandProcess();
+	keyin=asic_power(keyin);
 #ifdef GPS
   GPSCommandProcess();
 #endif

@@ -1,3 +1,15 @@
+ /*
+* Copyright (C) 2011-2012 Bitcrazy AB
+* Adapted to Cortex-M4 Fly Controller by Nuvoton
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, in version 3.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*/
 /*============================================================================*
   ___     ___     ___            _                _                           *
   /   \   | _ )   | _ \    ___   | |__     ___    | |_      o O O             *
@@ -8,29 +20,17 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
  *                                                                            *
  * Auto Balance Robot controller firmware for Nuvoton Cortex M4 series        *
  *                                                                            *
- * Written by T.L. Shen for Nuvoton Technology.                               *
- * tlshen@nuvoton.com/tzulan611126@gmail.com                                  *
+ * Written by Howard Huang for Nuvoton Technology.                            *
+ * chhuang16@nuvoton.com                                                      *
  *                                                                            *
  *============================================================================*
  */
-#ifndef _ALTHOLD_H
-#define _ALTHOLD_H
-#include "pid.h"
-typedef struct ALT_STATE {
-	float altHoldPIDVal;
-	float altHoldChange;
-	float altHoldTarget;
-	float asl;
-}ALTHOLD_STATE_T;
-bool GetAltHoldMode(void);
-void stabilizerAltHoldUpdate(int16_t *);
-bool GetAltHoldMode(void);
-void SetAltHoldPIDObj(PidObject* PIDObj);
-void SetCalibratingB(uint8_t c);
-ALTHOLD_STATE_T* GetAltHoldState(void);
-float getAslSpeed(void);
-float getAltHoldPIDVal(void);
-float getAccFuse(void);
-bool GetAutoLandMode(void);
-bool GetNearLand(void);
-#endif
+#ifndef ASIC_INI_H_
+#define ASIC_INI_H_
+
+#include "Def.h"
+
+void asic_init(void);
+uint8_t asic_power(uint8_t key);
+#endif /* ASIC_INI_H_ */
+

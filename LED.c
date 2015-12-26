@@ -47,6 +47,9 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 //#endif  
 static char ledState = 0;
 uint32_t LED1_R, LED1_G, LED1_B, Blink,LED_cnt=0;
+extern uint32_t BAT_LED_R, BAT_LED_G, BAT_LED_B, BAT_Blink, BAT_LED_EN;
+extern uint32_t COM_LED_R, COM_LED_G, COM_LED_B, COM_Blink,COM_LED_EN;
+extern uint8_t ini_start;
 void TMR1_IRQHandler(void)
 {
     if(TIMER_GetIntFlag(TIMER1) == 1)
@@ -55,7 +58,7 @@ void TMR1_IRQHandler(void)
         TIMER_ClearIntFlag(TIMER1);
 				LED_cnt++;
 				if (LED_cnt<(Blink*100))
-						PA->DOUT = (LED1_R<<3)|(LED1_R<<6)|(LED1_G<<2)|(LED1_G<<5)|(LED1_B<<1)|(LED1_B<<4);
+						PA->DOUT = (LED1_R<<3)|(LED1_R<<6)|(LED1_R<<15)|(LED1_G<<2)|(LED1_G<<5)|(LED1_G<<14)|(LED1_B<<1)|(LED1_B<<4)|(LED1_B<<13);
 				else 
 						PA->DOUT = 0;
 				if (LED_cnt==1000)
@@ -74,7 +77,7 @@ char GetLedState()
 }
 void LED_Init(void)
 {
-		GPIO_SetMode(PA,(BIT1|BIT2|BIT3|BIT4|BIT5|BIT6),GPIO_MODE_OUTPUT);
+		GPIO_SetMode(PA,(BIT1|BIT2|BIT3|BIT4|BIT5|BIT6|BIT13|BIT14|BIT15),GPIO_MODE_OUTPUT);
 		PA->DOUT = 0;
 		/* Start Time1 counting */
 		TIMER_Start(TIMER1);		
@@ -112,63 +115,26 @@ void led_mag_state(char state)
 
 void UpdateLED()
 {
-//	if((GetSensorCalState()&(1<<MAG))) {
-//		if(getMagMode())
-//			ledState|=(1<<LED_MAG);
-//		else 
-//			ledState&=~(1<<LED_MAG);
-//	}
-//	
-//	if(getHeadFreeMode())
-//		ledState|=(1<<LED_HEAD_FREE);
-//	else
-//		ledState&=~(1<<LED_HEAD_FREE);
-//#if STACK_BARO
-//	if(GetAltHoldMode())
-//		ledState|=(1<<LED_ALTHOLD);
-//	else
-//#endif
-//		ledState&=~(1<<LED_ALTHOLD);
-//	
-//	if(CheckLowBattery())
-//		ledState|=(1<<LED_LOW_BAT);
-//	else
-//		ledState&=~(1<<LED_LOW_BAT);
-//	
-//	if(CheckLowRSSI())
-//		ledState|=(1<<LED_LOW_RSSI);
-//	else
-//		ledState&=~(1<<LED_LOW_RSSI);
-//	
-//	if(RC_GetFlyMode())
-//		ledState|=(1<<LED_FLY_MODE);
-//	else
-//		ledState&=~(1<<LED_FLY_MODE);
+		if ((COM_LED_EN==1)&&(ini_start==0))
+		{
+				LED1_R=COM_LED_R;
+				LED1_G=COM_LED_G;
+				LED1_B=COM_LED_B;
+				Blink=COM_Blink;
+		}
+		else if ((BAT_LED_EN==1)&&(ini_start==0))
+		{
+				LED1_R=BAT_LED_R;
+				LED1_G=BAT_LED_G;
+				LED1_B=BAT_LED_B;
+				Blink=BAT_Blink;
+		}
+		else if ((COM_LED_EN==0)&&(BAT_LED_EN==0)&&(ini_start==0))
+		{
+				LED1_R=0;
+				LED1_G=0;
+				LED1_B=0;
+				Blink=0;
+		}
 
-//	if((ledState&(1<<LED_ARM))==0)
-//#ifdef M451
-//		IO_ARM = 1;
-//#else
-//		DrvGPIO_SetBit(IO_STATE_ARM);
-//#endif
-//	else
-//#ifdef M451
-//		IO_ARM = 0;
-//#else
-//		DrvGPIO_ClrBit(IO_STATE_ARM);
-//#endif
-//	
-//#ifdef M451
-//	if((ledState&(1<<LED_MAG))==0)
-//		IO_MAG = 1;
-//	else
-//		IO_MAG = 0;
-//#endif
-//	
-//#ifdef M451
-//	if((ledState&(1<<LED_HEAD_FREE))==0)
-//		IO_HFREE_MODE = 1;
-//	else
-//		IO_HFREE_MODE = 0;
-//#endif
 }

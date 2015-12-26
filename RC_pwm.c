@@ -53,7 +53,7 @@ static uint8_t RX_PORTC_PINS[RX_PORTC_COUNT] = {RX_PORTC_BITS};
 #endif
 uint16_t* rcValuePwm;
 static uint8_t rcChannelPWM[RC_CHANS]  = {ROLLPIN, PITCHPIN, YAWPIN, THROTTLEPIN, AUX1PIN,AUX2PIN};
-static uint8_t RX_PORTB_PINS[RX_PORTB_COUNT] = {RX_PORTB_BITS};  
+//static uint8_t RX_PORTB_PINS[RX_PORTB_COUNT] = {RX_PORTB_BITS};  
 
 #define RX_PIN_CHECK(pin_pos, rc_value_pos)                                                        \
     if (mask & RX_PORT_PINS[pin_pos]) {                                                             \

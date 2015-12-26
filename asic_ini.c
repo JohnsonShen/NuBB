@@ -37,35 +37,90 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #include "Driver\DrvSYS.h"
 #include "Driver\DrvUART.h"
 #endif
-#define M1_VO_A     PB3		//[R]
-#define M1_VO_B     PC3
-#define M2_VO_A     PB0		//[L]
-#define M2_VO_B     PB1
 
-#include "Hall.h"
+#include "asic_ini.h"
 #include "Def.h"
-#include "motors.h"
+#include "Timer_Ctrl.h"
+extern uint32_t LED1_R, LED1_G, LED1_B, Blink;
+uint32_t ini_Tick,cur_Tick;
+uint8_t ini_start=0,asic_ready=1;
 
-extern uint8_t R_rl,L_rl,start;
-extern int16_t speed[2];
-void HALL_init()
+void asic_init(void)
 {
-	/* Enable battery detect circuit (PA3=1)*/
-	SYS->GPB_MFPL = (SYS->GPB_MFPL & (~SYS_GPB_MFPL_PB0MFP_Msk) & (~SYS_GPB_MFPL_PB3MFP_Msk));
-	GPIO_SetMode(PB, BIT0, GPIO_MODE_INPUT);
-	GPIO_SetMode(PB, BIT1, GPIO_MODE_INPUT);
-	GPIO_SetMode(PB, BIT3, GPIO_MODE_INPUT);
-	GPIO_SetMode(PC, BIT3, GPIO_MODE_INPUT);
-	GPIO_CLR_INT_FLAG(PB, BIT0);
-	GPIO_CLR_INT_FLAG(PB, BIT3);
-//	GPIO_EnableInt(PB, 0, GPIO_INT_RISING);
-//	GPIO_EnableInt(PB, 3, GPIO_INT_RISING);
+	SYS->GPD_MFPL = (SYS->GPD_MFPL & (~SYS_GPD_MFPL_PD2MFP_Msk));		//key input
+	GPIO_SetMode(PD, BIT2, GPIO_MODE_INPUT);
+	GPIO_CLR_INT_FLAG(PD, BIT2);
+	GPIO_ENABLE_DEBOUNCE(PD, BIT2);
+	GPIO_SET_DEBOUNCE_TIME(GPIO_DBCTL_DBCLKSRC_HCLK,GPIO_DBCTL_DBCLKSEL_32768);
+	GPIO_EnableInt(PD, 2, GPIO_INT_FALLING);
+	
+	SYS->GPD_MFPH = (SYS->GPD_MFPH & (~SYS_GPD_MFPH_PD10MFP_Msk));	//asic power control
+	PD10=0;
+	GPIO_SetMode(PD, BIT10, GPIO_MODE_OUTPUT);	
 }
 
-void HALL_getSpeed(int16_t* moveSpeed)
+uint8_t asic_power(uint8_t key)
 {
-	GPIO_EnableInt(PB, 0, GPIO_INT_RISING);
-	GPIO_EnableInt(PB, 3, GPIO_INT_RISING);
-	moveSpeed[L] = speed[0]; 	//[L]
-  moveSpeed[R] = speed[1];	//[R]
+	if (asic_ready==1)
+	{
+			ini_start=0;
+			key=0;
+	}
+	if ((key==1)&&(ini_start==0))
+	{
+			ini_Tick=getTickCount();
+			cur_Tick=ini_Tick;
+			LED1_R=1;
+			LED1_G=0;
+			LED1_B=0;
+			Blink=10;
+			PD10=0;
+			ini_start=1;
+	}
+	else if((key==1)&&(ini_start>=1)&&(asic_ready==0))
+	{
+			if (getTickCount()<ini_Tick)
+					ini_Tick=0;
+			if (getTickCount()>(cur_Tick+300))
+			{
+					uint32_t LEDM;
+					cur_Tick=getTickCount();
+					LEDM=(cur_Tick-ini_Tick)/300;
+					if ((LEDM%3)==0)
+					{
+						LED1_R=1;
+						LED1_B=0;	
+					}
+					else if ((LEDM%3)==1)
+					{
+						LED1_R=0;
+						LED1_G=1;		
+					}
+					else if ((LEDM%3)==2)
+					{
+						LED1_G=0;	
+						LED1_B=1;
+					}
+			}
+			if (((cur_Tick-ini_Tick)>600000)&&(ini_start==1)&&(asic_ready==0))
+			{
+					PD10=1;
+					TIMER_Delay(TIMER0,500);
+					ini_Tick=getTickCount();
+					cur_Tick=ini_Tick;
+					LED1_R=1;
+					LED1_G=0;
+					LED1_B=0;
+					Blink=10;
+					PD10=0;
+					ini_start=2;
+			}
+			else if (((cur_Tick-ini_Tick)>600000)&&(ini_start==2)&&(asic_ready==0))
+			{
+					PD10=1;
+					ini_start=0;
+					key=0;
+			}
+	}
+	return key;
 }
