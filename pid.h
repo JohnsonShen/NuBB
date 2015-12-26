@@ -31,11 +31,11 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #include <stdbool.h>
 #include "Def.h"
 #ifdef ABROBOT
-#define RATE_KP_DC 5.8f
+#define RATE_KP_DC 2.01f
 #define RATE_KI_DC 0.1f
-#define RATE_KD_DC 1.0f
-#define LEVEL_KP_DC 39.8f
-#define LEVEL_KI_DC 5.6f
+#define RATE_KD_DC 0.0f
+#define LEVEL_KP_DC 20.4f
+#define LEVEL_KI_DC 4.5f
 #define LEVEL_KD_DC 0
 #endif
 #ifdef HEX6X
@@ -101,9 +101,9 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #define PID_YAW_RATE_KD  0.0
 #else
 #ifdef ABROBOT
-#define PID_YAW_RATE_KP  0.54f
-#define PID_YAW_RATE_KI  0.04f
-#define PID_YAW_RATE_KD  0.7f
+#define PID_YAW_RATE_KP  0.84f
+#define PID_YAW_RATE_KI  0.02f
+#define PID_YAW_RATE_KD  0.0f
 #else
 #define PID_YAW_RATE_KP  1.08f/*20.5*/
 #define PID_YAW_RATE_KI  14/*5.19f*//*200*/
@@ -112,9 +112,9 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #endif
 #define PID_YAW_RATE_INTEGRATION_LIMIT     500.0
 #ifdef ABROBOT
-#define PID_ROLL_KP  LEVEL_KP_DC
-#define PID_ROLL_KI  LEVEL_KI_DC
-#define PID_ROLL_KD  LEVEL_KD_DC
+#define PID_ROLL_KP  18.9f
+#define PID_ROLL_KI  2.15f
+#define PID_ROLL_KD  0.0f
 #else
 #define PID_ROLL_KP  LEVEL_KP_1806
 #define PID_ROLL_KI  LEVEL_KI_1806

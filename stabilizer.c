@@ -225,7 +225,7 @@ void commanderGetThrust()
 	getRC(rcData);
 	rc_thrust = GetRCThrust();
 #ifdef ABROBOT
-  Actuator.actuatorThrust = (rcData[PITCH_CH] - RC_PITCH_MID)*10;
+  Actuator.actuatorThrust = (rcData[PITCH_CH] - RC_PITCH_MID)*5;
   speedDesired = Actuator.actuatorThrust/10;
 #else
 	if(checkArm()) {
