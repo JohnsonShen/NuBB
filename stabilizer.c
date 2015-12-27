@@ -59,7 +59,7 @@ static float headHold     = 0.0f;
 static float headFreeHold = 0.0f;
 static bool magMode = false;
 static bool headFreeMode = false;
-int16_t  motor_enable=1;
+int16_t  motor_enable=0;
 ACTUATOR_T Actuator;
 
 uint32_t motorPowerM[MOTOR_NUMBER];
@@ -130,26 +130,32 @@ void ClearFlip()
 
 void commanderGetRPY()
 {
-	int16_t rcData[RC_CHANS], rc_roll, rc_pitch, rc_yaw, rc_aux2;
+	int16_t rcData[RC_CHANS], rc_roll, rc_pitch, rc_yaw, rc_aux1;
 	
 	getRC(rcData);
 	rc_roll = (rcData[ROLL_CH] - RC_ROLL_MID);
 	rc_pitch = (rcData[PITCH_CH] - RC_PITCH_MID);
 	rc_yaw = (rcData[YAW_CH] - RC_YAW_MID);
-	rc_aux2 = rcData[AUX2_CH];
+	rc_aux1 = rcData[AUX1_CH];
   
 #ifdef ABROBOT
   //rc_roll = -rc_roll;
   rc_yaw = rc_roll;
+  if(rc_aux1==128)
+    rc_yaw = 0;
+  else if(rc_aux1>128)
+    rc_yaw = 200;
+  else
+    rc_yaw = -200;
+  
   rc_roll =0;
   rc_pitch = 0;
   if(!magMode)
-			HoldHead();
-		
-		magMode = true;
-		headFreeMode = false;
+    HoldHead();
+
+  magMode = true;
+  headFreeMode = false;
 #else
-	
 	if(rc_aux2<RC_ONE_THIRD) {
 		magMode = false;
 		headFreeMode = false;
@@ -177,7 +183,7 @@ void commanderGetRPY()
 		//if((GetFrameCount()%18)==0)
 		//printf("YA:%f,HF:%f,Diff:%f\n",eulerYawActual,headFreeHold,radDiff);
 	}
-
+#if 0
 	if (fabs(rc_yaw)<RC_YAW_DEAD_BAND) {
 		if(magMode&&(!headFreeMode)) {
 			int16_t dif = eulerYawActual - headHold;
@@ -200,7 +206,29 @@ void commanderGetRPY()
 		else
 			eulerYawDesired = -(rc_yaw*YAW_DEG_MAX/(RC_YAW_MIN-RC_YAW_MID));
 	}
-
+#else
+  if(fabs(rc_yaw)<3) {
+			
+	} 
+	else {
+		if(magMode)
+			HoldHead();
+		
+		if(rc_yaw>0)
+			eulerYawDesired+=(((float)rc_yaw/100.0f*YAW_DEG_MAX/(RC_YAW_MAX-RC_YAW_MID)));
+		else
+			eulerYawDesired+=(-((float)rc_yaw/100.0f*YAW_DEG_MAX/(RC_YAW_MIN-RC_YAW_MID)));
+    
+    if(eulerYawDesired<-180)
+				eulerYawDesired = eulerYawDesired + 360;
+			else if(eulerYawDesired>180)
+				eulerYawDesired = eulerYawDesired - 360;
+    
+    //if((GetFrameCount()%18)==0)
+    //  printf("rc_yaw,Desire,Actual:%d %f %f\n",rc_yaw, eulerYawDesired, eulerYawActual);
+	}
+  
+#endif
 	if(rc_roll>RC_ROLL_DEAD_BAND)
 		eulerRollDesired = (rc_roll*ROLL_DEG_MAX/(RC_ROLL_MAX-RC_ROLL_MID));
 	else if(rc_roll<-RC_ROLL_DEAD_BAND)

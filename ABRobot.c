@@ -53,10 +53,13 @@ int freq=0;
 #define code_version 0x00000900	//code version: 0.090
 extern RF_DATA RxData;
 uint32_t COM_LED_R, COM_LED_G, COM_LED_B, COM_Blink,COM_LED_EN=0,code_ver,code_update;
+extern uint32_t LED1_R, LED1_G, LED1_B;
 extern int16_t  motor_enable;
 extern int16_t speed[2];
-extern uint8_t BatteryPercent,charge,asic_ready;
-uint8_t au8IR_CODE[4],notify=0,notify_buf[10],keyin=0;
+extern uint8_t BatteryPercent,charge,asic_ready,ini_start;
+extern uint16_t RxChannel[RC_CHANS];
+extern uint16_t* rcValueSSV;
+uint8_t au8IR_CODE[4],notify=0,notify_buf[10],keyin=0,spin,spin_cnt;
 
 void version_check(void)
 {
@@ -111,18 +114,32 @@ void GPD_IRQHandler(void)
 				while (PD2==0)
 				{
 						motor_enable=0;
-						TIMER_Delay(TIMER0,1000);
+						TIMER_Delay(TIMER0,100);
 						key_cnt++;
-						if(key_cnt>2000)
+						if ((key_cnt%100)<(100-(key_cnt/200)))
+								PA->DOUT = 0x8048;	//turn on red led
+						else
+								PA->DOUT = 0;
+						if(key_cnt>20000)
 						{
 								PD10=1;
 								keyin=0;
 								asic_ready=0;
+                ini_start=0;
+                LED1_R=0;
+                LED1_G=0;
+                LED1_B=0;
+								PA->DOUT = 0;
 								break;						
 						}
 				}
 				if (PD10==0)
+				{
+						PA->DOUT = 0x8048;						
+						TIMER_Delay(TIMER0,100000);
+						PA->DOUT = 0;	
 						motor_enable=motor_temp;
+    }
     }
 		else
     {
@@ -272,6 +289,11 @@ void CommandProcess()
 		PD11=1;
 		GPIO_EnableInt(PD, 14, GPIO_INT_FALLING);
 	}
+	if ((spin==0)&&(spin_cnt==0))
+	{
+			rcValueSSV[AUX1_CH] 	= 128;
+	}
+  spin_cnt--;
 	// Read incoming control messages
 	if (Serial_available() >= 2)
 	{
@@ -379,6 +401,12 @@ void CommandProcess()
 								RxData.BUF[3] = buf[5];
 								RxData.BUF[4] = buf[6];
 								RxData.num=5;
+						}
+						else if((buf[0] == 0x02)&&(buf[1] == 00)){
+										rcValueSSV[AUX1_CH] = buf[2];
+										spin=buf[3];
+                    if(spin==0)
+                        spin_cnt=100;
 						}
 //						else if((buf[0] == 0x04)&&(buf[1] == 00)){
 //								DEBUG_PORT->DAT = ((GetBattery()>>8) & 0xFF);
@@ -515,7 +543,8 @@ void CommandProcess()
 		}
 		else { 
 			if (report_format == REPORT_FORMAT_TEXT) {
-			printf("Unknown command.\n");
+				__NOP();
+//			printf("Unknown command.\n");
 			}
 		} // Skip character
 	}

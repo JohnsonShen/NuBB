@@ -53,6 +53,7 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 uint16_t* rcValueSSV;
 uint8_t	FlyMode = FLY_MODE_BASIC;
 uint16_t RxChannel[RC_CHANS];
+extern RF_DATA RxData;
 
 void SPI_Init(void)
 {
@@ -91,6 +92,11 @@ bool RC_SSV_Init(void)
 	if(beConnected) {
 	//SSV7241_Enable();	
 	rcValueSSV = getValue();
+  RxData.BUF[0] = 0x80;
+  RxData.BUF[1] = 0x80;
+  RxData.BUF[2] = 0x80;
+  RxData.BUF[3] = 0x80;
+  RxData.BUF[4] = 0x00;
 	printf("\nSSV RC 2.4G Initilized.\n");
 }
 	return beConnected;
@@ -156,6 +162,9 @@ void SetRemoteControl()
   }
   else if(token0=='y') { //Yaw
     rcValueSSV[YAW_CH] = GetUnit32() + 1000;
+  }
+  else if(token0=='x') { //Au'x'1
+    rcValueSSV[AUX1_CH] = GetUnit32();
   }
 }
 uint16_t readSsvRC(uint8_t chan) 

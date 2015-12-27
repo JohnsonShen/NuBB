@@ -139,7 +139,7 @@
             <RestoreTracepoints>0</RestoreTracepoints>
           </Target>
           <RunDebugAfterBuild>0</RunDebugAfterBuild>
-          <TargetSelection>16</TargetSelection>
+          <TargetSelection>15</TargetSelection>
           <SimDlls>
             <CpuDll></CpuDll>
             <CpuDllArguments></CpuDllArguments>
@@ -163,9 +163,8 @@
             <RunIndependent>0</RunIndependent>
             <UpdateFlashBeforeDebugging>1</UpdateFlashBeforeDebugging>
             <Capability>1</Capability>
-            <DriverSelection>4107</DriverSelection>
+            <DriverSelection>4106</DriverSelection>
           </Flash1>
-          <bUseTDR>0</bUseTDR>
           <Flash2>Bin\Nu_Link.dll</Flash2>
           <Flash3>"" ()</Flash3>
           <Flash4></Flash4>
@@ -547,6 +546,11 @@
               <FileType>1</FileType>
               <FilePath>.\asic_ini.c</FilePath>
             </File>
+            <File>
+              <FileName>PetMode.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\PetMode.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -766,6 +770,11 @@
               <FileName>BMP280.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\BMP280.h</FilePath>
+            </File>
+            <File>
+              <FileName>PetMode.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\PetMode.h</FilePath>
             </File>
           </Files>
         </Group>

@@ -64,8 +64,8 @@ void RTC_IRQHandler(void)
 				if (USB_CS == 1)
 						g_u32RTCTickINT++;
 				else
-						g_u32RTCTickINT = g_u32RTCTickINT+2;
-				if (g_u32RTCTickINT>21600)
+						g_u32RTCTickINT = g_u32RTCTickINT+4;
+				if (g_u32RTCTickINT>43200)
 				{
 							BAT_LED_R=0;
 							BAT_LED_G=0;
@@ -353,7 +353,7 @@ void UpdateBattery()
 			else if(g_u32AdcIntFlag==7)
 			{
 					ADP_IN = EADC_GET_CONV_DATA(EADC, 3);
-					if ((ADP_IN>0xA00) && (Dis_charge ==1)&&(full==0)&& (No_bat==0))
+					if ((ADP_IN>0x900) && (Dis_charge ==1)&&(full==0)&& (No_bat==0))
 					{
 							report_ASIC(0x6A,0x04,0x01,0x01,charge,BatteryPercent,0,0,0,0);
 							USB_CS = 0;
@@ -364,9 +364,9 @@ void UpdateBattery()
 							charge=2;
 							PD11=0;
 					}
-					else if ((USB_IN>0xEA0) && (ADP_IN>0xA00) && (Dis_charge_pin ==0)&&(USB_CS==1))
+					else if ((USB_IN>0xEA0) && (ADP_IN>0x900) && (Dis_charge_pin ==0)&&(USB_CS==1))
 							USB_CS = 0;
-					else if ((USB_IN>0xEA0) && (ADP_IN<0xA00) && (Dis_charge_pin ==0)&&(USB_CS==0))
+					else if ((USB_IN>0xEA0) && (ADP_IN<0x900) && (Dis_charge_pin ==0)&&(USB_CS==0))
 							USB_CS = 1;
 					g_u32AdcIntFlag++;
 					EADC_START_CONV(EADC, BIT4);
@@ -374,7 +374,7 @@ void UpdateBattery()
 			else if(g_u32AdcIntFlag==9)
 			{	
 					USB_IN = EADC_GET_CONV_DATA(EADC, 4);
-					if ((USB_IN>0xEA0) && (ADP_IN<0xA00) && (Dis_charge ==1)&&(full==0)&& (No_bat==0))
+					if ((USB_IN>0xEA0) && (ADP_IN<0x900) && (Dis_charge ==1)&&(full==0)&& (No_bat==0))
 					{
 							report_ASIC(0x6A,0x04,0x01,0x01,charge,BatteryPercent,0,0,0,0);
 							USB_CS = 1;
@@ -385,7 +385,7 @@ void UpdateBattery()
 							charge=2;
 							PD11=0;
 					}
-					else if ((USB_IN<0xEA0) && (ADP_IN<0xA00) && (Dis_charge_pin ==0))
+					else if ((USB_IN<0xEA0) && (ADP_IN<0x900) && (Dis_charge_pin ==0))
 					{
 							report_ASIC(0x6A,0x04,0x01,0x01,charge,BatteryPercent,0,0,0,0);
 							Dis_charge = 1;
@@ -402,7 +402,7 @@ void UpdateBattery()
 	}
 	else
 	{
-			if (getTickCount()>90000)
+			if (getTickCount()>60000)
 			EADC_START_CONV(EADC, BIT0);
 	}
 }

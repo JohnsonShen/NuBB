@@ -24,21 +24,21 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #define AUX2PIN          5  
 
 #define RC_ROLL_MIN      1090
-#define RC_ROLL_MID      1500
+#define RC_ROLL_MID      1512
 #define RC_ROLL_MAX      1920
 #define RC_PITCH_MIN     1090
 #define RC_PITCH_MID     1590
 #define RC_PITCH_MAX     1920
 
 #define RC_YAW_MIN       1090
-#define RC_YAW_MID       1500
+#define RC_YAW_MID       1512
 #define RC_YAW_MAX       1920
 #define RC_THR_MIN       1090
 #define RC_THR_ARM       1100
 #ifdef ABROBOT
 #define RC_THR_MID       250
 #else
-#define RC_THR_MID       1500
+#define RC_THR_MID       1512
 #endif
 #define RC_THR_MAX       1920
 #define RC_THR_HOV       1355

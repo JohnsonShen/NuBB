@@ -30,7 +30,7 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #include "AltHold.h"
 
 int16_t rcData[RC_CHANS];
-volatile uint16_t rcValue[RC_CHANS] = {1502, 1502, 1502, 1502, 1502, 1502};
+volatile uint16_t rcValue[RC_CHANS] = {1512, 1512, 1512, 1512, 128, 1512};
 
 static char motorArm = 0;
 static char Calbrate = 0;
@@ -49,8 +49,8 @@ void RC_Init(void)
 {
 	char i;
 	for(i = 0; i<RC_CHANS; i++)
-		rcData[i] = 1500;
-	
+		rcData[i] = 1512;
+  
 	beSSVConnected = RC_SSV_Init();
 	if(beSSVConnected)
 		printf("SSV Receiver Detected.\n");
