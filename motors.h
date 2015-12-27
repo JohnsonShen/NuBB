@@ -69,10 +69,6 @@ int motorsGetRatio(int id);
 void motorsStart(void);
 #ifdef ABROBOT
 void ABRobotMotorInit(void);
-typedef struct  {
-  float MotorOffset[2];
-  float MotorScale[2];
-}MotorCal_t;
 void SetMotorCal(void);
 MotorCal_t* GetMotorCal(void);
 #endif

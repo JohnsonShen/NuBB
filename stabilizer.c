@@ -225,7 +225,7 @@ void commanderGetThrust()
 	getRC(rcData);
 	rc_thrust = GetRCThrust();
 #ifdef ABROBOT
-  Actuator.actuatorThrust = (rcData[PITCH_CH] - RC_PITCH_MID)*5;
+  Actuator.actuatorThrust = (rcData[PITCH_CH] - RC_PITCH_MID);
   speedDesired = Actuator.actuatorThrust/10;
 #else
 	if(checkArm()) {
@@ -276,33 +276,30 @@ uint16_t limitThrust(int32_t value)
 	return (uint16_t)value;
 }
 #ifdef ABROBOT
-static void distributePower(int16_t thrust, int16_t roll,
-                            int16_t pitch, int16_t yaw, int16_t speed)
+static void distributePower(bool On)
 {
-
-  int16_t actuator[2];
+  int16_t actuatorMotor[2];
   MotorCal_t* MotorCal;
-  actuator[R] = thrust + speed - pitch + roll + yaw;
-  actuator[L] = -thrust -speed + pitch + roll + yaw;
 
+	nvtActuatorFusionFilter(&Actuator);
   MotorCal = GetMotorCal();
-  actuator[R] = (actuator[R] + MotorCal->MotorOffset[R])*MotorCal->MotorScale[R];
-  actuator[L] = (actuator[L] + MotorCal->MotorOffset[L])*MotorCal->MotorScale[L];
+	nvtSetMotorSmooth(MotorCal);
+	nvtGetActuatorSmooth(actuatorMotor);
   /* ROBOT tilt forward
      Right Motor CCW for balance
   */
-  if(actuator[R]>ACTUATOR_DEAD_ZONE) { 
+  if(actuatorMotor[R]>ACTUATOR_DEAD_ZONE) { 
     BLDC_MOTOR[R].ctrl = CW;
-    BLDC_MOTOR[R].pwm = actuator[R];
+    BLDC_MOTOR[R].pwm = actuatorMotor[R];
     motorPowerM[R] = BLDC_MOTOR[R].pwm;
   } 
   /* ROBOT tilt backward
      Right Motor CW for balance
   */
-  else if(actuator[R]<-ACTUATOR_DEAD_ZONE) { 
-    actuator[R] = -actuator[R];
+  else if(actuatorMotor[R]<-ACTUATOR_DEAD_ZONE) { 
+    actuatorMotor[R] = -actuatorMotor[R];
     BLDC_MOTOR[R].ctrl = CCW;
-    BLDC_MOTOR[R].pwm = actuator[R];
+    BLDC_MOTOR[R].pwm = actuatorMotor[R];
     motorPowerM[R] = -BLDC_MOTOR[R].pwm;
   } 
   /* Balance in Dead Zone */
@@ -314,18 +311,18 @@ static void distributePower(int16_t thrust, int16_t roll,
    /* ROBOT tilt forward
      Left Motor CW for balance
   */
-  if(actuator[L]>ACTUATOR_DEAD_ZONE) { 
+  if(actuatorMotor[L]>ACTUATOR_DEAD_ZONE) { 
     BLDC_MOTOR[L].ctrl = CW;
-    BLDC_MOTOR[L].pwm = actuator[L];
+    BLDC_MOTOR[L].pwm = actuatorMotor[L];
     motorPowerM[L] = BLDC_MOTOR[L].pwm;
   } 
   /* ROBOT tilt backward
      Left Motor CCW for balance
   */
-  else if(actuator[L]<-ACTUATOR_DEAD_ZONE) { 
-    actuator[L] = -actuator[L];
+  else if(actuatorMotor[L]<-ACTUATOR_DEAD_ZONE) { 
+    actuatorMotor[L] = -actuatorMotor[L];
     BLDC_MOTOR[L].ctrl = CCW;
-    BLDC_MOTOR[L].pwm = actuator[L];
+    BLDC_MOTOR[L].pwm = actuatorMotor[L];
     motorPowerM[L] = -BLDC_MOTOR[L].pwm;
   } 
   /* Balance in Dead Zone */
@@ -371,9 +368,14 @@ static void distributePower(int16_t thrust, int16_t roll,
       PD7 = 1;
       PF2 = 1;
   }
-    
+	if(On) {  
   motorsSetRatio(MOTOR_M1, BLDC_MOTOR[R].pwm);
   motorsSetRatio(MOTOR_M2, BLDC_MOTOR[L].pwm);
+}
+	else {
+	motorsSetRatio(MOTOR_M1, 0);
+  motorsSetRatio(MOTOR_M2, 0);
+	}
 }
 #else
 static void distributePower(int16_t thrust, int16_t roll,
@@ -475,9 +477,9 @@ void stabilizer()
 	float Euler[3],Ve[3];
 #ifdef ABROBOT
 #ifdef STACK_HALL
-  int16_t moveSpeedAvg;/*cm/sec*/
+  int16_t FusionSpeed;/*cm/sec*/
 #endif
-  moveSpeedAvg = GetMoveSpeed();
+  FusionSpeed = GetFusionSpeed();
   /*if((moveSpeedAvg>-15)&&(moveSpeedAvg<15)) {
     controllerResetYawRatePID();
 		//HoldHead();
@@ -534,7 +536,7 @@ void stabilizer()
 	controllerCorrectRatePID(gyro[0], gyro[1], gyro[2],
 				rollRateDesired, pitchRateDesired, yawRateDesired);
   
-  controllerCorrectSpeedPID((float)moveSpeedAvg,speedDesired);
+  controllerCorrectSpeedPID((float)FusionSpeed,speedDesired);
 #ifdef ABROBOT
   controllerGetActuatorOutput(&Actuator.actuatorRoll, &Actuator.actuatorPitch, &Actuator.actuatorYaw, &Actuator.actuatorSpeed);
 #else
@@ -545,18 +547,18 @@ void stabilizer()
 
 #ifdef ABROBOT
   if((GetSensorCalState()&(1<<GYRO))&& (motor_enable==1)) 
-    distributePower(Actuator.actuatorThrust, Actuator.actuatorRoll, Actuator.actuatorPitch, -Actuator.actuatorYaw, 0/*Actuator.actuatorSpeed*/);
+    distributePower(true);
   else
-    distributePower(0, 0, 0, 0, 0);
+    distributePower(false);
   /**if((GetFrameCount()%18)==0)
     //printf("Th,Roll,Pitch,Yaw, Speed:%d,%d,%d,%d, %d \n",Actutaor.actuatorThrust,Actutaor.actuatorRoll, Actutaor.actuatorPitch, -Actutaor.actuatorYaw, Actutaor.actuatorSpeed);
     printf("Yaw, Head, Speed:%d,%f,%d\n",Actutaor.actuatorYaw, Actutaor.headHold, Actutaor.actuatorSpeed);*/
 #else
   if(GetFrameCount()>(MOTORS_ESC_DELAY*2)) {
     if (actuatorThrust > 0)
-        distributePower(Actuator.actuatorThrust, Actuator.actuatorRoll, Actuator.actuatorPitch, -Actuator.actuatorYaw);
+        distributePower(true);
     else {
-      distributePower(0, 0, 0, 0);
+      distributePower(false);
     }
     //printf("Th,Roll,Pitch,Yaw:%d,%d,%d,%d  ",actuatorThrust,actuatorRoll, actuatorPitch, -actuatorYaw);
   }

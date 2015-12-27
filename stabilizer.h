@@ -34,15 +34,6 @@ bool getHeadFreeMode(void);
 bool isArmMinThrottle(void);
 bool IsMotorSpin(void);
 float getHeadHold(void);
-typedef struct {
-  int16_t actuatorThrust;
-int16_t  actuatorRoll;
-int16_t  actuatorPitch;
-int16_t  actuatorYaw;
-#ifdef ABROBOT
-int16_t  actuatorSpeed;
-#endif
-} ACTUATOR_T;
 ACTUATOR_T* getActuator(void);
 #endif /* STABILIZER_H_ */
 

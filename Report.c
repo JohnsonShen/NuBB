@@ -98,33 +98,37 @@ void report_ahrs_quaternion()
 }
 void report_sensor_raw()
 {
-	int16_t RawACC[3], RawGYRO[3], RawMAG[3];
+	int16_t RawACC[3], RawGYRO[3], RawMAG[3], RawHALL[2];
 	uint16_t RawBARO[2];
 	
 	nvtGetSensorRawACC(RawACC);
 	nvtGetSensorRawGYRO(RawGYRO);
 	nvtGetSensorRawMAG(RawMAG);
 	nvtGetSensorRawBARO(RawBARO);
+	nvtGetSensorRawHALL(RawHALL);
 	if (report_format == REPORT_FORMAT_BINARY) {
 		Serial_write((char*)RawACC, 6);
 		Serial_write((char*)RawGYRO, 6);
 		Serial_write((char*)RawMAG, 6);
 		Serial_write((char*)RawBARO, 4);
+		Serial_write((char*)RawHALL, 4);
 	}
 	else if (report_format == REPORT_FORMAT_TEXT) {
 		printf("@rA:%d,%d,%d  ",RawACC[0],RawACC[1],RawACC[2]);
 		printf("@rG:%d,%d,%d  ",RawGYRO[0],RawGYRO[1],RawGYRO[2]);
 		printf("@rM:%d,%d,%d  ",RawMAG[0],RawMAG[1],RawMAG[2]);
 		printf("@rB:%d,%d,\n",RawBARO[0], RawBARO[1]);
+		printf("@rH:%d,%d,\n",RawHALL[0], RawHALL[1]);
 	}
 }
 
 void report_sensor_calibrated()
 {
-	float CalACC[3], CalGYRO[3], CalMAG[3], CalBaro;
+	float CalACC[3], CalGYRO[3], CalMAG[3], CalBaro,CalHALL[2];
 	nvtGetCalibratedACC(CalACC);
 	nvtGetCalibratedGYRO(CalGYRO);
 	nvtGetCalibratedMAG(CalMAG);
+	nvtGetCalibratedHALL(CalHALL);
 #if STACK_BARO
 	CalBaro = GetBaroAltitude();
 #else
@@ -140,6 +144,7 @@ void report_sensor_calibrated()
 		printf("@cG:%f,%f,%f  ",CalGYRO[0],CalGYRO[1],CalGYRO[2]);
 		printf("@cM:%f,%f,%f  ",CalMAG[0],CalMAG[1],CalMAG[2]);
 		printf("@cB:%f\n",CalBaro);
+		printf("@cH:%f,%f\n",CalHALL[0],CalHALL[0]);
 	}
 }
 void report_motor_power()
@@ -225,14 +230,13 @@ void report_velocity()
 #ifdef ABROBOT
 void report_motor_speed()
 {
-	uint16_t motorSpeed[2];
-  motorSpeed[L] = GetMoveSpeedL();
-  motorSpeed[R] = GetMoveSpeedR();
+	float motorSpeed[3];
+	nvtGetFusionSpeed(motorSpeed);
 	if (report_format == REPORT_FORMAT_BINARY) {
-		Serial_write((char*)motorSpeed, 4);
+		Serial_write((char*)motorSpeed, 8);
 	}
 	else if (report_format == REPORT_FORMAT_TEXT) {
-		printf("@mSpeed:L,R:%d,%d\n", motorSpeed[L], motorSpeed[R]);
+		printf("@mSpeed:L,R:%f,%f\n", motorSpeed[L], motorSpeed[R]);
 	}
 }
 void report_actuator_status()

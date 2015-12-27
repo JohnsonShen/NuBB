@@ -551,9 +551,9 @@ void loop()
 	}
 #endif
 	if(getMagMode()||!(GetSensorCalState()&(1<<MAG)))
-		nvtUpdateAHRS(SENSOR_ACC|SENSOR_GYRO|SENSOR_MAG);
+		nvtUpdateAHRS(SENSOR_ACC|SENSOR_GYRO|SENSOR_MAG|SENSOR_HALL);
 	else
-		nvtUpdateAHRS(SENSOR_ACC|SENSOR_GYRO);
+		nvtUpdateAHRS(SENSOR_ACC|SENSOR_GYRO|SENSOR_HALL);
 
 	if((GetFrameCount()%40)==0)
 		report_sensors();

@@ -435,8 +435,8 @@ void SensorReadSpeed()
 #if STACK_HALL
 	int16_t moveSpeed[2];/* cm/sec */
 	HALL_getSpeed(moveSpeed);
-  Sensor.moveSpeed[0] = moveSpeed[0];
-  Sensor.moveSpeed[1] = moveSpeed[1];
+  Sensor.rawHALL[0] = moveSpeed[0];
+  Sensor.rawHALL[1] = moveSpeed[1];
 #endif
 }
 #endif
@@ -477,6 +477,7 @@ void SensorsRead(char SensorType, char interval)
 #if STACK_HALL
 	if(SensorType&SENSOR_HALL) {
 		SensorReadSpeed();
+		nvtInputSensorRawHALL(&Sensor.rawHALL[0]);
 	}
 #endif
   
@@ -566,16 +567,10 @@ BaroInfo_T* GetBaroInfo()
 }
 #endif
 #if STACK_HALL
-int16_t GetMoveSpeed()
+float GetFusionSpeed()
 {
-	return (Sensor.moveSpeed[L]+Sensor.moveSpeed[R])/2;
-}
-int16_t GetMoveSpeedL()
-{
-	return Sensor.moveSpeed[L];
-}
-int16_t GetMoveSpeedR()
-{
-	return Sensor.moveSpeed[R];
+	float Speed[3];
+	nvtGetFusionSpeed(Speed);
+	return Speed[2];
 }
 #endif
