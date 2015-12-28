@@ -48,6 +48,7 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #define BREAK 3
 #define R     0
 #define L     1
+#define M     2
 typedef struct {
   uint8_t ctrl;
   uint16_t pwm;

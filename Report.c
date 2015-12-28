@@ -236,7 +236,7 @@ void report_motor_speed()
 		Serial_write((char*)motorSpeed, 8);
 	}
 	else if (report_format == REPORT_FORMAT_TEXT) {
-		printf("@mSpeed:L,R:%f,%f\n", motorSpeed[L], motorSpeed[R]);
+		printf("@mSpeed:L,R,M:%f,%f,%f\n", motorSpeed[L], motorSpeed[R], motorSpeed[M]);
 	}
 }
 void report_actuator_status()
