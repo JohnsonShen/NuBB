@@ -40,6 +40,7 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #ifdef ABROBOT
 #define ACTUATOR_DEAD_ZONE 0
 #endif
+#define YAW_SPEED 200
 static float gyro[3]; // Gyro axis data in deg/s
 static float eulerRollActual;
 static float eulerPitchActual;
@@ -131,22 +132,24 @@ void ClearFlip()
 void commanderGetRPY()
 {
 	int16_t rcData[RC_CHANS], rc_roll, rc_pitch, rc_yaw, rc_aux1;
+  float YawSpeedFactor;
+  
 	
 	getRC(rcData);
 	rc_roll = (rcData[ROLL_CH] - RC_ROLL_MID);
 	rc_pitch = (rcData[PITCH_CH] - RC_PITCH_MID);
 	rc_yaw = (rcData[YAW_CH] - RC_YAW_MID);
 	rc_aux1 = rcData[AUX1_CH];
-  
+  YawSpeedFactor = 1.0f;//GetFactorFromVelocity();
 #ifdef ABROBOT
   //rc_roll = -rc_roll;
   rc_yaw = rc_roll;
   if(rc_aux1==128)
     rc_yaw = 0;
   else if(rc_aux1>128)
-    rc_yaw = 200;
+    rc_yaw = YAW_SPEED*YawSpeedFactor;
   else
-    rc_yaw = -200;
+    rc_yaw = -YAW_SPEED*YawSpeedFactor;
   
   rc_roll =0;
   rc_pitch = 0;
@@ -254,7 +257,7 @@ void commanderGetThrust()
 	rc_thrust = GetRCThrust();
 #ifdef ABROBOT
   Actuator.actuatorThrust = (rcData[PITCH_CH] - RC_PITCH_MID);
-  speedDesired = Actuator.actuatorThrust/10;
+  speedDesired = Actuator.actuatorThrust/6;
 #else
 	if(checkArm()) {
 		if(rc_thrust<arm_min_thr) {
@@ -543,8 +546,6 @@ void stabilizer()
 	controllerCorrectAttitudePID(eulerRollActual, eulerPitchActual, eulerYawActual,
 				eulerRollDesired, eulerPitchDesired, -eulerYawDesired,\
 				&rollRateDesired, &pitchRateDesired, &yawRateDesired);
-	
-
 	
 #if STACK_BARO
 	if(GetSensorInitState()&SENSOR_BARO) {

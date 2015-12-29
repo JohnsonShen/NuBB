@@ -18,11 +18,17 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #include "M451Series.h"
 #include "Def.h"
 #include "Report.h"
-#include "Timer_Ctrl.h"
+#include "Sensors.h"
 #include "VWControl.h"
 #define RPM_MAX 140
 #define RPM_MIN 0
+#define MIN_FACTOR 0.1f;
 float GetFactorFromVelocity()
 {
-  return 0;
+  int16_t FusionSpeed;/*cm/sec*/
+  float WFactor;
+  FusionSpeed = GetFusionSpeed();
+  WFactor = fabs((RPM_MAX - fabs(FusionSpeed)))/RPM_MAX + MIN_FACTOR;
+  //printf("%d %f\n",FusionSpeed,WFactor);
+  return WFactor;
 }

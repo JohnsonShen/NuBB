@@ -16,5 +16,5 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #ifndef _VWCONTROL_H
 #define _VWCONTROL_H
 #include "Def.h"
-
+float GetFactorFromVelocity(void);
 #endif
