@@ -48,6 +48,7 @@ void controllerResetAllPID(void);
 void controllerResetYawRatePID(void);
 #ifdef ABROBOT
 void controllerGetActuatorOutput(int16_t* roll, int16_t* pitch, int16_t* yaw, int16_t* speed);
+void GetSpeedPID(float* PID);
 #else
 void controllerGetActuatorOutput(int16_t* roll, int16_t* pitch, int16_t* yaw);
 #endif

@@ -32,6 +32,7 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #define REPORT_GPS_STATUS        14
 #define REPORT_HALL_STATUS       15
 #define REPORT_ACTUATOR_STATUS   16
+#define REPORT_HALLSPEED_PID     17
 
 #define REPORT_FORMAT_TEXT        0 
 #define REPORT_FORMAT_BINARY      1 

@@ -22,7 +22,7 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #include "RC.h"
 #include "ssv7241.h"
 #include "controller.h"
-
+extern char GetChar(void);
 #define ROLL_BASE         (1500-1024*ROLL_SCALE/2)
 #define ROLL_SCALE_BASIC   0.27f//0.108f
 #define ROLL_SCALE_EXPERT  0.4f

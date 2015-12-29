@@ -351,7 +351,11 @@ void CommandProcess()
 					else if (type == 'r') //'r'ate pid
 						report_mode = REPORT_RATE_PID;
 					else if (type == 'a') //'a'ltitude hold pid
+#ifdef ABROBOT
+						report_mode = REPORT_HALLSPEED_PID;
+#else          
 						report_mode = REPORT_ALTHOLD_PID;
+#endif
 				}
 			}
 			else if (command == 'f') {// Set report 'f'ormat

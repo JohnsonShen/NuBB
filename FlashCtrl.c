@@ -413,7 +413,8 @@ void UpdateFlashPID(bool erase)
 	GetRollRatePID(&PID_FIELD[i]);i+=PID_SIZE;
 	GetPitchRatePID(&PID_FIELD[i]);i+=PID_SIZE;
 	GetYawRatePID(&PID_FIELD[i]);i+=PID_SIZE;
-	GetAltHoldPID(&PID_FIELD[i]);i+=ALT_PID_SIZE;
+	//GetAltHoldPID(&PID_FIELD[i]);i+=ALT_PID_SIZE;
+  GetSpeedPID(&PID_FIELD[i]);//i+=ALT_PID_SIZE;
 	if(erase) {
 		DATA_FLASH_Write(PIDBase++,i162dw((int16_t)FIELD_INVALID));
 		return;

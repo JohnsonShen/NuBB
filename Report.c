@@ -208,6 +208,19 @@ void report_althold_pid()
 		PID[0],PID[1],PID[2]);
 	}
 }
+void report_hallspeed_pid()
+{
+	float PID[3];
+	 GetSpeedPID(&PID[0]);
+	
+	if (report_format == REPORT_FORMAT_BINARY) {
+		Serial_write((char*)PID, 12);
+	}
+	else if (report_format == REPORT_FORMAT_TEXT) {
+		printf("@mHallSpeedPID:%f,%f,%f\n",
+		PID[0],PID[1],PID[2]);
+	}
+}
 void report_velocity()
 {
 	float Ve[3],Move[3];
@@ -447,6 +460,9 @@ void report_sensors()
 	}
 	else if (report_mode == REPORT_ALTHOLD_PID) {
 		report_althold_pid();
+	}
+  else if (report_mode == REPORT_HALLSPEED_PID) {
+		report_hallspeed_pid();
 	}
 	else if (report_mode == REPORT_VELOCITY) {
 		report_velocity();
