@@ -366,11 +366,13 @@ void GetSpeedPID(float* PID)
 uint32_t GetUnit32()
 {
   char value_s[4];
+  uint32_t X;//Jtest
   value_s[0] = GetChar();
   value_s[1] = GetChar();
   value_s[2] = GetChar();
   value_s[3] = GetChar();
-  return atoi(value_s);
+  X = atoi(value_s);
+  return X;
 }
 int GetPIDValue()
 {
