@@ -26,9 +26,9 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #define RC_ROLL_MIN      1090
 #define RC_ROLL_MID      1512
 #define RC_ROLL_MAX      1920
-#define RC_PITCH_MIN     1090
-#define RC_PITCH_MID     1590
-#define RC_PITCH_MAX     1920
+#define RC_PITCH_MIN     1000
+#define RC_PITCH_MID     1512
+#define RC_PITCH_MAX     2023
 
 #define RC_YAW_MIN       1090
 #define RC_YAW_MID       1512
