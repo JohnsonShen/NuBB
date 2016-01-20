@@ -146,7 +146,7 @@ void GPB_IRQHandler(void)
 				else if(R_cnt==2)
 				{
 						speed[1]=(277778/(TIMER3->CNT-R_value));
-            if (PC3==1)
+            if (PC3==0)
                 speed[1]=-speed[1];
 						R_cnt=0;
 						GPIO_DisableInt(PB, 3);

@@ -146,7 +146,7 @@ void motorsInit()
 	);
 #endif
 	SYS->GPC_MFPL |= (SYS_GPC_MFPL_PC0MFP_PWM0_CH0|SYS_GPC_MFPL_PC1MFP_PWM0_CH1|
-	SYS_GPC_MFPL_PC2MFP_PWM0_CH2|SYS_GPC_MFPL_PC3MFP_PWM0_CH3
+	SYS_GPC_MFPL_PC2MFP_PWM0_CH2/*|SYS_GPC_MFPL_PC3MFP_PWM0_CH3*/
 #ifdef HEX6X 
 	|SYS_GPC_MFPL_PC4MFP_PWM0_CH4
 #endif
@@ -157,7 +157,7 @@ void motorsInit()
 	PWM_ConfigOutputChannelf(PWM0, 0, ESC_UPDATE_FREQ, ESC_UPDATE_FREQ/10);
 	PWM_ConfigOutputChannelf(PWM0, 1, ESC_UPDATE_FREQ, ESC_UPDATE_FREQ/10);
 	PWM_ConfigOutputChannelf(PWM0, 2, ESC_UPDATE_FREQ, ESC_UPDATE_FREQ/10);
-	PWM_ConfigOutputChannelf(PWM0, 3, ESC_UPDATE_FREQ, ESC_UPDATE_FREQ/10);
+	//PWM_ConfigOutputChannelf(PWM0, 3, ESC_UPDATE_FREQ, ESC_UPDATE_FREQ/10);
 #ifdef HEX6X 
 	PWM_ConfigOutputChannelf(PWM0, 4, ESC_UPDATE_FREQ, ESC_UPDATE_FREQ/10);
 	PWM_ConfigOutputChannelf(PWM0, 5, ESC_UPDATE_FREQ, ESC_UPDATE_FREQ/10);
@@ -166,7 +166,7 @@ void motorsInit()
 	motorsSetRatio(MOTOR_M1, 0);
 	motorsSetRatio(MOTOR_M2, 0);
 	motorsSetRatio(MOTOR_M3, 0);
-	motorsSetRatio(MOTOR_M4, 0);
+	//motorsSetRatio(MOTOR_M4, 0);
 #ifdef HEX6X 
 	motorsSetRatio(MOTOR_M5, 0);
 	motorsSetRatio(MOTOR_M6, 0);
@@ -175,7 +175,7 @@ void motorsInit()
 	PWM_EnableOutput(PWM0, PWM_CH_0_MASK);
 	PWM_EnableOutput(PWM0, PWM_CH_1_MASK);
 	PWM_EnableOutput(PWM0, PWM_CH_2_MASK);
-	PWM_EnableOutput(PWM0, PWM_CH_3_MASK);
+	//PWM_EnableOutput(PWM0, PWM_CH_3_MASK);
 #ifdef HEX6X 
 	PWM_EnableOutput(PWM0, PWM_CH_4_MASK);
 	PWM_EnableOutput(PWM0, PWM_CH_5_MASK);

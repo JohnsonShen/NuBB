@@ -52,6 +52,7 @@ void HALL_init()
 {
 	/* Enable battery detect circuit (PA3=1)*/
 	SYS->GPB_MFPL = (SYS->GPB_MFPL & (~SYS_GPB_MFPL_PB0MFP_Msk) & (~SYS_GPB_MFPL_PB3MFP_Msk));
+  SYS->GPC_MFPL = (SYS->GPC_MFPL & (~SYS_GPC_MFPL_PC3MFP_Msk));
 	GPIO_SetMode(PB, BIT0, GPIO_MODE_INPUT);
 	GPIO_SetMode(PB, BIT1, GPIO_MODE_INPUT);
 	GPIO_SetMode(PB, BIT3, GPIO_MODE_INPUT);
