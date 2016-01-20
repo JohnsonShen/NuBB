@@ -60,7 +60,7 @@ extern uint8_t BatteryPercent,charge,asic_ready,ini_start;
 extern uint16_t RxChannel[RC_CHANS];
 extern uint16_t* rcValueSSV;
 uint8_t au8IR_CODE[4],notify=0,notify_buf[10],keyin=0,spin,spin_cnt;
-
+char ReportAHRS = 0;
 void version_check(void)
 {
 		code_ver=read_code_ver(1+7168);
@@ -277,8 +277,25 @@ void setup()
   ABRobotMotorInit();
 #endif
 	nvtAHRSInit();
+  nvtSetAHRSID(1);
+  MPU6050_set_addr(1);
+	SensorsInit();
+  nvtSetAHRSID(0);
+  MPU6050_set_addr(0);
 	SensorsInit();
 	ChronographSet(ChronMain);
+}
+void SetAHRS()
+{
+  char token0 = GetChar();
+	if(token0=='0') { //AHRSID:0
+    ReportAHRS = 0;
+    //nvtSetAHRSID(0);
+  }
+  else if(token0=='1') { //AHRSID:1
+    ReportAHRS = 1;
+    //nvtSetAHRSID(1);
+  }
 }
 void CommandProcess()
 {
@@ -387,6 +404,9 @@ void CommandProcess()
 				}
         else if (mode=='r') {// 'r'emote
 					SetRemoteControl();
+				}
+        else if (mode=='a') {// 'a'hrs
+					SetAHRS();
 				}
 #endif
 			}
@@ -577,7 +597,8 @@ void loop()
 		UpdateBattery();
 	}
 	if(ChronographRead(ChronRC)>= OUTPUT_RC_INTERVAL) {
-		SensorsDynamicCalibrate(SENSOR_GYRO|SENSOR_MAG);
+    if((GetFrameCount()%2)==0)
+      SensorsDynamicCalibrate(SENSOR_GYRO|SENSOR_MAG);
 		ChronographSet(ChronRC);
 		computeRC();
 		armDetect();
@@ -588,17 +609,25 @@ void loop()
 	else
 		nvtUpdateAHRS(SENSOR_ACC|SENSOR_GYRO|SENSOR_HALL);
 
-	if((GetFrameCount()%40)==0)
-		report_sensors();
+	if((GetFrameCount()%40)==0) {
+    if(ReportAHRS==0)
+      report_sensors();
+  }
+  else if((GetFrameCount()%40)==1) {
+    if(ReportAHRS==1)
+      report_sensors();
+  }
 	
-	IncFrameCount(1);
+	
 #ifdef OPTION_RC
 	if(GetFrameCount()==MOTORS_ESC_DELAY)
 		motorsStart();
-	stabilizer();
+  if((GetFrameCount()%2)==0)
+    stabilizer();
 	if((GetFrameCount()%12)==0)
 		UpdateLED();
 #endif
+  IncFrameCount(1);
 }
 
 /*-----------------------------------------------------------------------------------*/

@@ -60,7 +60,7 @@ typedef struct {
 #define MOTOR_NUMBER               4
 #endif
 #endif
-#define MAX_PULSE_WIDTH            2000 /*pulse width range from 0 to 2000 and 2000 means 2ms*/
+#define MAX_PULSE_WIDTH            2500 /*pulse width range from 0 to 2000 and 2000 means 2ms*/
 #define PWM_GET_CNR(pwm, u32ChannelNum)  (*(__IO uint32_t *) (&((pwm)->PERIOD0) + (u32ChannelNum)))
 
 

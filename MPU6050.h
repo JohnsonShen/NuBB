@@ -803,4 +803,5 @@ bool MPU6050_initialize(void);
 void MPU6050_getAcceleration(int16_t* x, int16_t* y, int16_t* z);
 void MPU6050_getRotation(int16_t* x, int16_t* y, int16_t* z);
 bool MPU6050_testConnection(void);
+void MPU6050_set_addr(uint8_t Addr);
 #endif /* _MPU6050_H_ */

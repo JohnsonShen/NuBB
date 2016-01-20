@@ -29,6 +29,7 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #ifdef ABROBOT
 #define ROLL_DEG_MAX  10
 #define PITCH_DEG_MAX 30
+//#define WSPEED
 #else
 #define ROLL_DEG_MAX  60
 #define PITCH_DEG_MAX 60
@@ -144,13 +145,15 @@ void commanderGetRPY()
 #ifdef ABROBOT
   //rc_roll = -rc_roll;
   rc_yaw = rc_roll;
+#ifdef WSPEED
+#else
   if(rc_aux1==128)
     rc_yaw = 0;
   else if(rc_aux1>128)
     rc_yaw = YAW_SPEED*YawSpeedFactor;
   else
     rc_yaw = -YAW_SPEED*YawSpeedFactor;
-  
+#endif
   rc_roll =0;
   rc_pitch = 0;
   if(!magMode)
@@ -216,7 +219,8 @@ void commanderGetRPY()
 	else {
 		if(magMode)
 			HoldHead();
-		
+#ifdef WSPEED
+#else
 		if(rc_yaw>0)
 			eulerYawDesired+=(((float)rc_yaw/100.0f*YAW_DEG_MAX/(RC_YAW_MAX-RC_YAW_MID)));
 		else
@@ -226,7 +230,7 @@ void commanderGetRPY()
 				eulerYawDesired = eulerYawDesired + 360;
 			else if(eulerYawDesired>180)
 				eulerYawDesired = eulerYawDesired - 360;
-    
+#endif   
     //if((GetFrameCount()%18)==0)
     //  printf("rc_yaw,Desire,Actual:%d %f %f\n",rc_yaw, eulerYawDesired, eulerYawActual);
 	}
@@ -560,7 +564,9 @@ void stabilizer()
 	commanderGetThrust();
 	//printf("%f  %f  %f \n", rollRateDesired, pitchRateDesired, yawRateDesired);
   //Jtest
-	//yawRateDesired = -eulerYawDesired;
+#ifdef WSPEED
+	yawRateDesired = -eulerYawDesired;
+#endif
 	nvtGetCalibratedGYRO(gyro);
 	controllerCorrectRatePID(gyro[0], gyro[1], gyro[2],
 				rollRateDesired, pitchRateDesired, yawRateDesired);

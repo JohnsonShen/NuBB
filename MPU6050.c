@@ -51,9 +51,15 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #include "MPU6050.h"
 #include "Timer_Ctrl.h"
 
-static uint8_t devAddr=MPU6050_DEFAULT_ADDRESS;
+uint8_t devAddr=MPU6050_DEFAULT_ADDRESS;
 static uint8_t buffer[14];
-
+void MPU6050_set_addr(uint8_t Addr)
+{
+  if(Addr==0)
+    devAddr = MPU6050_ADDRESS_AD0_HIGH;
+  else if(Addr==1)
+    devAddr = MPU6050_ADDRESS_AD0_LOW;
+}
 uint8_t MPU6050_pgm_read_byte(const uint8_t* i)
 {
     return 0;

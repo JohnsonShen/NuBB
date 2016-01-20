@@ -28,6 +28,7 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #include "RC.h"
 #include "RC_ssv.h"
 #include "ssv7241.h"
+#include "MPU6050.h"
 typedef struct {
 	int lastTime;
 	int interval0;
@@ -133,6 +134,8 @@ void SysTick_Handler(void)
 void IncFrameCount(int inc)
 {
 	frame_counter+=inc;
+  nvtSetAHRSID(frame_counter%2);
+  MPU6050_set_addr(frame_counter%2);
 }
 
 uint32_t GetFrameCount()
