@@ -148,9 +148,9 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #define PID_ALTHOLD_KP  ALTHOLD_KP_BMP280/*36.9//13*/
 #define PID_ALTHOLD_KI  ALTHOLD_KI_BMP280/*0.5*/
 #ifdef ABROBOT
-#define SPEED_KP_HALL 1
-#define SPEED_KI_HALL 1
-#define SPEED_KD_HALL 1
+#define SPEED_KP_HALL 24.5
+#define SPEED_KI_HALL 61.8
+#define SPEED_KD_HALL 4
 #define PID_SPEED_KP SPEED_KP_HALL
 #define PID_SPEED_KI SPEED_KI_HALL
 #define PID_SPEED_KD SPEED_KD_HALL
