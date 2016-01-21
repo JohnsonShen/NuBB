@@ -93,7 +93,7 @@ void SysTick_Handler(void)
 		freqCount=frame_counter-FC_Last;
 #endif
 #ifdef ABROBOT
-		UPDATE_DT = 0.002f;
+		UPDATE_DT = 0.004f;
 #else
 		UPDATE_DT = (float)(1.0f/freqCount);
 #endif

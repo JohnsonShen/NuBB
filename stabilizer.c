@@ -133,8 +133,8 @@ void commanderGetRPY()
 {
 	int16_t rcData[RC_CHANS], rc_roll, rc_pitch, rc_yaw, rc_aux1;
   float YawSpeedFactor;
+  static int16_t yaw_last;
   
-	
 	getRC(rcData);
 	rc_roll = (rcData[ROLL_CH] - RC_ROLL_MID);
 	rc_pitch = (rcData[PITCH_CH] - RC_PITCH_MID);
@@ -149,10 +149,10 @@ void commanderGetRPY()
 #ifdef  DEGREE
     rc_yaw = (rc_aux1 - 128)*15;
   
-  if(rc_yaw>165)
-    rc_yaw = 165;
-  else if(rc_yaw<-165)
-    rc_yaw = -165;
+  if(rc_yaw>=180)
+    rc_yaw = 180;
+  else if(rc_yaw<-180)
+    rc_yaw = -180;
 #else
   if(rc_aux1==128)
     rc_yaw = 0;
@@ -225,22 +225,27 @@ void commanderGetRPY()
   	if (fabs(rc_yaw)==0) {
 		if(magMode&&(!headFreeMode)) {
 			int16_t dif = eulerYawActual - headHold;
+      
+      if(yaw_last!=0)
+        HoldHead();
 			
-			if(dif<-180)
+			/*if(dif<-180)
 				dif = dif + 360;
 			else if(dif>180)
 				dif = dif - 360;
-			eulerYawDesired = dif;
+			eulerYawDesired = dif;*/
+      eulerYawDesired = headHold;
 		}
 		else 
 			eulerYawDesired = 0;
+      
 	} 
 	else {
-		if(magMode)
-			HoldHead();
-		
-		eulerYawDesired = rc_yaw;
+		eulerYawDesired = headHold + rc_yaw;
 	}
+  yaw_last = rc_yaw;
+  //if((GetFrameCount()%500)==0)
+  //    printf("headHoldrc_yaw,Desire,Actual:%f %d %f %f\n",headHold,rc_yaw, eulerYawDesired, eulerYawActual);
 #else
   if(fabs(rc_yaw)<3) {
 			
@@ -260,8 +265,7 @@ void commanderGetRPY()
 			else if(eulerYawDesired>180)
 				eulerYawDesired = eulerYawDesired - 360;
 #endif   
-    //if((GetFrameCount()%18)==0)
-    //  printf("rc_yaw,Desire,Actual:%d %f %f\n",rc_yaw, eulerYawDesired, eulerYawActual);
+    
 	}
   
 #endif
@@ -578,7 +582,7 @@ void stabilizer()
 	
 	//printf("%f  %f  %f \n", eulerRollActual, eulerPitchActual, eulerYawActual);
 	controllerCorrectAttitudePID(eulerRollActual, eulerPitchActual, eulerYawActual,
-				eulerRollDesired, eulerPitchDesired, -eulerYawDesired,\
+				eulerRollDesired, eulerPitchDesired, eulerYawDesired,\
 				&rollRateDesired, &pitchRateDesired, &yawRateDesired);
 	
 #if STACK_BARO
