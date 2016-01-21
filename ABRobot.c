@@ -306,11 +306,14 @@ void CommandProcess()
 		PD11=1;
 		GPIO_EnableInt(PD, 14, GPIO_INT_FALLING);
 	}
+#ifdef DEGREE
+#else
 	if ((spin==0)&&(spin_cnt==0))
 	{
 			rcValueSSV[AUX1_CH] 	= 128;
 	}
   spin_cnt--;
+#endif
 	// Read incoming control messages
 	if (Serial_available() >= 2)
 	{

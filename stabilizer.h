@@ -16,6 +16,8 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #ifndef STABILIZER_H_
 #define STABILIZER_H_
 #include <stdint.h>
+//#define WSPEED
+#define DEGREE
 void stabilizer(void);
 void stabilizerInit(void);
 void GetMotorPower(int16_t* MotorPower);
