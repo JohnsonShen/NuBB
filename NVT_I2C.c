@@ -95,10 +95,10 @@ void I2CX_IRQHandler(uint8_t id)
 }
 	}
 }
-void I2C0_IRQHandler(void)
-{
-	I2CX_IRQHandler(0);
-}
+//void I2C0_IRQHandler(void)
+//{
+//	I2CX_IRQHandler(0);
+//}
 void I2C1_IRQHandler(void)
 {
 	I2CX_IRQHandler(1);
@@ -660,9 +660,14 @@ uint8_t NVT_WriteByteContinue_addr8(uint8_t address,uint8_t* data, uint8_t len)
 			cnt++;
 			if (cnt>65535)
 			{
+#if 1
+						ErrorFlag=1;
+						return ErrorFlag;
+#else
 						__disable_irq();
 						SYS_UnlockReg();
 						SYS_ResetChip();
+#endif
 			}
 	}
 	cnt=0;
@@ -697,9 +702,14 @@ uint8_t NVT_ReadByteContinue_addr8(uint8_t address,uint8_t* data, uint8_t len, u
 			cnt++;
 			if (cnt>65535)
 			{
+#if 1
+                                                ErrorFlag=1;
+						return ErrorFlag;
+#else
 						__disable_irq();
 						SYS_UnlockReg();
 						SYS_ResetChip();
+#endif
 			}
 	}
 	cnt=0;

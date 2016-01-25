@@ -258,7 +258,7 @@ void TIMER_Init()
 	/* Enable peripheral clock */
 	CLK_EnableModuleClock(TMR1_MODULE);
 	CLK_SetModuleClock(TMR1_MODULE, CLK_CLKSEL1_TMR1SEL_HIRC, 0);
-	TIMER_Open(TIMER1, TIMER_PERIODIC_MODE, 1000);
+	TIMER_Open(TIMER1, TIMER_PERIODIC_MODE, 10000);
 	TIMER_EnableInt(TIMER1);
 	/* Enable Timer1 NVIC */
 	NVIC_EnableIRQ(TMR1_IRQn);

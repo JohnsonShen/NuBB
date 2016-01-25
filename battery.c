@@ -231,21 +231,31 @@ void led_level(void)
 		{
 				if (BatteryPercent>3)
 				{
-							BAT_LED_R=1;
+							BAT_LED_R=100;
 							BAT_LED_G=0;
 							BAT_LED_B=0;
 				}
 				else if ((BatteryPercent<=3)&&(BatteryPercent>1))
 				{
-							BAT_LED_R=1;
-							BAT_LED_G=1;
+							BAT_LED_R=100;
+							BAT_LED_G=100;
 							BAT_LED_B=0;
 				}	
 				else
 				{
 							BAT_LED_R=0;
-							BAT_LED_G=1;
+							BAT_LED_G=100;
 							BAT_LED_B=0;
+				}
+		}
+		if ((Dis_charge_pin == 1)||(Dis_charge == 1))
+		{
+				if (BatteryPercent>=3)
+				{
+							BAT_LED_R=100;
+							BAT_LED_G=0;
+							BAT_LED_B=0;
+							BAT_Blink=2;
 				}
 		}
 }
@@ -294,6 +304,7 @@ void UpdateBattery()
 							No_bat=0;
 							full=1;
 							report_ASIC(0x6A,0x04,0x01,0x01,charge,BatteryPercent,0,0,0,0);
+							led_level();
 							PD11=0;
 //							printf("Level:100\n");
 					}
@@ -306,6 +317,7 @@ void UpdateBattery()
 							BatteryPercent=1;//70 percent
 							No_bat=0;
 							report_ASIC(0x6A,0x04,0x01,0x01,charge,BatteryPercent,0,0,0,0);
+							led_level();
 							PD11=0;
 //						printf("Level:70\n");
 					}	
@@ -314,6 +326,7 @@ void UpdateBattery()
 							BatteryPercent=2;//50 percent
 							No_bat=0;
 							report_ASIC(0x6A,0x04,0x01,0x01,charge,BatteryPercent,0,0,0,0);
+							led_level();
 							PD11=0;
 //						printf("Level:50\n");
 					}
@@ -322,6 +335,7 @@ void UpdateBattery()
 							BatteryPercent=3;//30 percent
 							No_bat=0;
 							report_ASIC(0x6A,0x04,0x01,0x01,charge,BatteryPercent,0,0,0,0);
+							led_level();
 							PD11=0;
 //						printf("Level:30\n");
 					}	
@@ -330,6 +344,7 @@ void UpdateBattery()
 							BatteryPercent=4;//0 percent
 							No_bat=0;
 							report_ASIC(0x6A,0x04,0x01,0x01,charge,BatteryPercent,0,0,0,0);
+							led_level();
 							PD11=0;
 //						printf("Level:0\n");
 					}
@@ -338,6 +353,7 @@ void UpdateBattery()
 							BatteryPercent=5;//off
 							No_bat=0;
 							report_ASIC(0x6A,0x04,0x01,0x01,charge,BatteryPercent,0,0,0,0);
+							led_level();
 							PD11=0;
 //						printf("Level:off\n");
 					}
@@ -406,7 +422,7 @@ void UpdateBattery()
 	}
 	else
 	{
-			if (getTickCount()>60000)
+//			if (getTickCount()>60000)
 			EADC_START_CONV(EADC, BIT0);
 	}
 }

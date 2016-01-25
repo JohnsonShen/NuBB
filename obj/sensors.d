@@ -14,6 +14,7 @@
 .\obj\sensors.o: Timer_Ctrl.h
 .\obj\sensors.o: AltHold.h
 .\obj\sensors.o: pid.h
+.\obj\sensors.o: Calibrate.h
 .\obj\sensors.o: LED.h
 .\obj\sensors.o: Report.h
 .\obj\sensors.o: Hall.h

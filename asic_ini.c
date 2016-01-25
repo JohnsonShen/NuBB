@@ -70,7 +70,7 @@ uint8_t asic_power(uint8_t key)
 	{
 			ini_Tick=getTickCount();
 			cur_Tick=ini_Tick;
-			LED1_R=1;
+			LED1_R=100;
 			LED1_G=0;
 			LED1_B=0;
 			Blink=10;
@@ -88,18 +88,18 @@ uint8_t asic_power(uint8_t key)
 					LEDM=(cur_Tick-ini_Tick)/300;
 					if ((LEDM%3)==0)
 					{
-						LED1_R=1;
+						LED1_R=100;
 						LED1_B=0;	
 					}
 					else if ((LEDM%3)==1)
 					{
 						LED1_R=0;
-						LED1_G=1;		
+						LED1_G=100;		
 					}
 					else if ((LEDM%3)==2)
 					{
 						LED1_G=0;	
-						LED1_B=1;
+						LED1_B=100;
 					}
 			}
 			if (((cur_Tick-ini_Tick)>600000)&&(ini_start==1)&&(asic_ready==0))
@@ -108,7 +108,7 @@ uint8_t asic_power(uint8_t key)
 					TIMER_Delay(TIMER0,500);
 					ini_Tick=getTickCount();
 					cur_Tick=ini_Tick;
-					LED1_R=1;
+					LED1_R=100;
 					LED1_G=0;
 					LED1_B=0;
 					Blink=10;

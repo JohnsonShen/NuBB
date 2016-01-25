@@ -54,14 +54,19 @@ void TMR1_IRQHandler(void)
 {
     if(TIMER_GetIntFlag(TIMER1) == 1)
     {
+        uint32_t LED_duty,RLED,BLED,GLED;
         /* Clear Timer1 time-out interrupt flag */
         TIMER_ClearIntFlag(TIMER1);
 				LED_cnt++;
-				if (LED_cnt<(Blink*100))
-						PA->DOUT = (LED1_R<<3)|(LED1_R<<6)|(LED1_R<<15)|(LED1_G<<2)|(LED1_G<<5)|(LED1_G<<14)|(LED1_B<<1)|(LED1_B<<4)|(LED1_B<<13);
+				LED_duty=LED_cnt%100;
+				RLED=((int32_t)(LED1_R-LED_duty)>0)?1:0;
+				BLED=((int32_t)(LED1_B-LED_duty)>0)?1:0;
+				GLED=((int32_t)(LED1_G-LED_duty)>0)?1:0;				
+				if (LED_cnt<(Blink*1000))
+						PA->DOUT = (RLED<<3)|(RLED<<6)|(RLED<<15)|(GLED<<2)|(GLED<<5)|(GLED<<14)|(BLED<<1)|(BLED<<4)|(BLED<<13);
 				else 
 						PA->DOUT = 0;
-				if (LED_cnt==1000)
+				if (LED_cnt==10000)
 						LED_cnt=0;
     }
 }

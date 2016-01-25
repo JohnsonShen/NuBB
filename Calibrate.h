@@ -16,4 +16,5 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #ifndef _CALIBRATE_H
 #define _CALIBRATE_H
 void SensorCalibration(void);
+void AccCalibration(void);
 #endif

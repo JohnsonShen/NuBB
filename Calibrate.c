@@ -32,15 +32,15 @@ void CalibrationFail()
 }
 void AccCalibration()
 {
-	const char direction = GetChar();
+	char direction;// = GetChar();
 	const char calibration_done = 'd';
 	char side = atoi(&direction);
 	signed char status;
-	
+	direction = 'x';
 	if (direction == 'x')
 		side = 0;
-	else
-		side = atoi(&direction);
+//	else
+//		side = atoi(&direction);
 	
 	if ((direction == '0')||(direction == 'x'))
 		nvtCalACCInit();
@@ -54,10 +54,10 @@ void AccCalibration()
 	if(status==STATUS_BUFFER_FILLED) {
 		if (direction == 'x')
 			UpdateFlashCal(SENSOR_ACC, false);
-		Serial_write((char*)&direction, 1);
+//		Serial_write((char*)&direction, 1);
 	}
 	else {
-	Serial_write((char*)&calibration_done, 1);
+//	Serial_write((char*)&calibration_done, 1);
 		UpdateFlashCal(SENSOR_ACC, false);
 	}
 }

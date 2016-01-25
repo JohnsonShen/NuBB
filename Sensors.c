@@ -36,6 +36,7 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #include "Timer_Ctrl.h"
 #include "AltHold.h"
 //#include "RC.h"
+#include "Calibrate.h"
 #include "LED.h"
 #include "Report.h"
 #include "Hall.h"
@@ -501,6 +502,7 @@ void SensorsDynamicCalibrate(char SensorType)
 				SensorCalState.GYRO_Done = true;
 				led_arm_state(LED_STATE_OFF);
 				nvtGetGyroOffset(GyroMean);
+				AccCalibration();
 			}
 		}
 	}

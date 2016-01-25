@@ -59,10 +59,12 @@ extern int16_t speed[2];
 extern uint8_t BatteryPercent,charge,asic_ready,ini_start;
 extern uint16_t RxChannel[RC_CHANS];
 extern uint16_t* rcValueSSV;
-uint8_t au8IR_CODE[4],notify=0,notify_buf[10],keyin=0,spin,spin_cnt;
+uint8_t au8IR_CODE[4],notify=0,notify_buf[10],keyin=0,spin,spin_cnt,ss=0;
 char ReportAHRS = 0;
 void version_check(void)
 {
+		int32_t i32TimeOutCnt;
+	
 		code_ver=read_code_ver(1+7168);
 		if (code_ver==0xffffffff)
 				write_code_ver(1+7168,code_version);
@@ -75,8 +77,13 @@ void version_check(void)
 		{
 				PD10=1; //asic off
 				asic_ready=0;
-			
 				keyin=1;
+				i32TimeOutCnt = __HSI; /* About 5ms */
+				while(1)
+				{
+						if(i32TimeOutCnt-- <= 0)
+							break;
+				}
 		}
 		
 }
@@ -86,7 +93,7 @@ uint32_t WaitDataReady(uint32_t u32DataNum)
 
     i32TimeOutCnt = __HSI / 200; /* About 5ms */
 
-    while(u32DataNum != Serial_available())
+    while(u32DataNum > Serial_available())
     {
         if(i32TimeOutCnt-- <= 0)
             return 0;
@@ -120,6 +127,8 @@ void GPD_IRQHandler(void)
 								PA->DOUT = 0x8048;	//turn on red led
 						else
 								PA->DOUT = 0;
+						if(key_cnt>16000)
+								PD10=1;
 						if(key_cnt>20000)
 						{
 								PD10=1;
@@ -133,6 +142,8 @@ void GPD_IRQHandler(void)
 								break;						
 						}
 				}
+				if((key_cnt>16000)&&(key_cnt<20000))
+						PD10=0;
 				if (PD10==0)
 				{
 						PA->DOUT = 0x8048;						
@@ -433,12 +444,21 @@ void CommandProcess()
 										rcValueSSV[AUX1_CH] = buf[2];
 										spin=buf[3];
                     if(spin==0)
-                        spin_cnt=100;
+                        spin_cnt=80;
+						}						
+						else if((buf[0] == 0x07)&&(buf[1] == 00)){
+										if (buf[2]==1)
+												ss=getTickCount();
+										else if(buf[2]==0)
+										{
+												ss=0;
+												rcValueSSV[AUX1_CH]=128;
+										}
 						}
-//						else if((buf[0] == 0x04)&&(buf[1] == 00)){
-//								DEBUG_PORT->DAT = ((GetBattery()>>8) & 0xFF);
-//								DEBUG_PORT->DAT = (GetBattery() & 0xFF);
-//						}
+						else if((buf[0] == 0x04)&&(buf[1] == 00)){
+								DEBUG_PORT->DAT = ((GetBattery()>>8) & 0xFF);
+								DEBUG_PORT->DAT = (GetBattery() & 0xFF);
+						}
 						else if((buf[0] == 0x05)&&(buf[1] == 00)){								
 								if ((buf[2]==1)&&(PB14==1))
 										motor_enable=1;
@@ -453,8 +473,8 @@ void CommandProcess()
 				}
 				else
 				{
-						for(i=0;i<Serial_available();i++)
-								buf[i] = Serial_read();
+						while(Serial_available()!=0)
+								buf[0] = Serial_read();
 //						UART_Write(DEBUG_PORT,buf,Serial_available());
 				}
 		}
@@ -476,8 +496,8 @@ void CommandProcess()
 				}
 				else
 				{
-						for(i=0;i<Serial_available();i++)
-								buf[i] = Serial_read();
+						while(Serial_available()!=0)
+								buf[0] = Serial_read();
 //						UART_Write(DEBUG_PORT,buf,Serial_available());
 				}
 		}
@@ -511,8 +531,8 @@ void CommandProcess()
 				}
 				else
 				{
-						for(i=0;i<Serial_available();i++)
-								buf[i] = Serial_read();
+						while(Serial_available()!=0)
+								buf[0] = Serial_read();
 //						UART_Write(DEBUG_PORT,buf,Serial_available());
 				}
 		}
@@ -539,8 +559,8 @@ void CommandProcess()
 				}
 				else
 				{
-						for(i=0;i<Serial_available();i++)
-								buf[i] = Serial_read();
+						while(Serial_available()!=0)
+								buf[0] = Serial_read();
 //						UART_Write(DEBUG_PORT,buf,Serial_available());
 				}
 		}
@@ -558,13 +578,13 @@ void CommandProcess()
 								buf[3]=0x01;
 								buf[4]=charge;
 								buf[5]=BatteryPercent;
+								UART_Write(DEBUG_PORT,buf,6);
 						}
-						UART_Write(DEBUG_PORT,buf,6);
 				}
 				else
 				{
-						for(i=0;i<Serial_available();i++)
-								buf[i] = Serial_read();
+						while(Serial_available()!=0)
+								buf[0] = Serial_read();
 //						UART_Write(DEBUG_PORT,buf,Serial_available());
 				}
 		}
