@@ -147,12 +147,8 @@ void commanderGetRPY()
 #ifdef WSPEED
 #else
 #ifdef  DEGREE
-    rc_yaw = (rc_aux1 - 128)*15;
-  
-  if(rc_yaw>=180)
-    rc_yaw = 180;
-  else if(rc_yaw<-180)
-    rc_yaw = -180;
+    rc_yaw = -(rc_aux1 - 128)*15;
+
 #else
   if(rc_aux1==128)
     rc_yaw = 0;
@@ -242,6 +238,10 @@ void commanderGetRPY()
 	} 
 	else {
 		eulerYawDesired = headHold + rc_yaw;
+    if(eulerYawDesired>360)
+      eulerYawDesired-=360;
+    else if(eulerYawDesired<0)
+      eulerYawDesired+=360;
 	}
   yaw_last = rc_yaw;
   //if((GetFrameCount()%500)==0)
@@ -560,8 +560,15 @@ void stabilizer()
 	nvtGetEulerRPY(Euler);
 #ifdef ABROBOT
   eulerRollActual = 0;
+#ifdef DEGREE
+  if(Euler[2]<0) {
+    eulerYawActual = Euler[2] + 360;
+  }
+  else
+    eulerYawActual = Euler[2];
+#else
   eulerYawActual = Euler[2];
-  //eulerYawActual = 0;
+#endif
 #else
 	eulerRollActual = Euler[0];
   eulerYawActual = Euler[2];
