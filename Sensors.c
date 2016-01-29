@@ -456,18 +456,21 @@ void SensorsRead(char SensorType, char interval)
 	}
 #endif
 #if STACK_MAG
-	if(SensorType&SENSOR_MAG&&SensorInitState[AHRSID].MAG_Done) {
-		if((GetFrameCount()%interval)==0) {
-		SensorReadMAG();
-		nvtInputSensorRawMAG(&Sensor.rawMAG[0]);
+	if(SensorType&SENSOR_MAG) {
+    if(SensorInitState[nvtGetAHRSID()].MAG_Done) {
+      if((GetFrameCount()%interval)==0) {
+        SensorReadMAG();
+        nvtInputSensorRawMAG(&Sensor.rawMAG[0]);
+      }
+    }
+    else {
+      Sensor.rawMAG[0] = 0;
+      Sensor.rawMAG[1] = 0;
+      Sensor.rawMAG[2] = 0;
+      nvtInputSensorRawMAG(&Sensor.rawMAG[0]);
+    }
 	}
-	}
-	else {
-		Sensor.rawMAG[0] = 0;
-		Sensor.rawMAG[1] = 0;
-		Sensor.rawMAG[2] = 0;
-		nvtInputSensorRawMAG(&Sensor.rawMAG[0]);
-	}
+	
 #endif
 	#if STACK_GYRO
 	if(SensorType&SENSOR_GYRO&&SensorInitState[nvtGetAHRSID()].GYRO_Done) {
@@ -508,7 +511,7 @@ void SensorsDynamicCalibrate(char SensorType)
 	}
 #endif
 #if STACK_MAG
-	if(SensorType&SENSOR_MAG&&SensorInitState[AHRSID].MAG_Done) {
+	if(SensorType&SENSOR_MAG&&SensorInitState[nvtGetAHRSID()].MAG_Done) {
 		if(!SensorCalState.MAG_Done) {
 			static float rpy[3],lastY,diff;
 			nvtGetEulerRPY(rpy);
