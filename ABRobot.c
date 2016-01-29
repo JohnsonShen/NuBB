@@ -644,7 +644,7 @@ void loop()
 #ifdef OPTION_RC
 	if(GetFrameCount()==MOTORS_ESC_DELAY)
 		motorsStart();
-  if((GetFrameCount()%2)==0)
+  //if((GetFrameCount()%2)==1)
     stabilizer();
 	if((GetFrameCount()%12)==0)
 		UpdateLED();

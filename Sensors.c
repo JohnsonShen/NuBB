@@ -41,7 +41,7 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #include "Report.h"
 #include "Hall.h"
 #include "motors.h"
-SensorInit_T SensorInitState = {false,false,false};
+SensorInit_T SensorInitState[2] = {{false,false,false},{false,false,false}};
 SensorInit_T SensorCalState  = {false,false,false,false};
 CAL_FLASH_STATE_T CalFlashState =  {false,false,false,0xff};
 Sensor_T Sensor;
@@ -88,13 +88,13 @@ void SensorInitACC()
 	float Cal[ACC_CAL_DATA_SIZE];
 	bool FlashValid;
 	
-	if(!SensorInitState.ACC_Done) {
+	if(!SensorInitState[nvtGetAHRSID()].ACC_Done) {
 #if defined(MPU6050) || defined(MPU6500)
-		SensorInitState.ACC_Done = MPU6050_initialize();
-		SensorInitState.GYRO_Done = SensorInitState.ACC_Done;
+		SensorInitState[nvtGetAHRSID()].ACC_Done = MPU6050_initialize();
+		SensorInitState[nvtGetAHRSID()].GYRO_Done = SensorInitState[nvtGetAHRSID()].ACC_Done;
 #endif
 	}
-	if(SensorInitState.ACC_Done) {
+	if(SensorInitState[nvtGetAHRSID()].ACC_Done) {
 		printf("ACC connect - [OK]\n");
 		FlashValid = GetFlashCal(SENSOR_ACC, Cal);
 		if(FlashValid) {
@@ -130,14 +130,14 @@ void SensorInitGYRO()
 {
 	float Cal[GYRO_CAL_DATA_SIZE];
 	bool FlashValid;
-	if(!SensorInitState.GYRO_Done) {
+	if(!SensorInitState[nvtGetAHRSID()].GYRO_Done) {
 #if defined(MPU6050) || defined(MPU6500)
-		SensorInitState.GYRO_Done = MPU6050_initialize();
-		SensorInitState.ACC_Done = SensorInitState.GYRO_Done;
+		SensorInitState[nvtGetAHRSID()].GYRO_Done = MPU6050_initialize();
+		SensorInitState[nvtGetAHRSID()].ACC_Done = SensorInitState[nvtGetAHRSID()].GYRO_Done;
 #endif
 	}
 
-	if(SensorInitState.GYRO_Done) {
+	if(SensorInitState[nvtGetAHRSID()].GYRO_Done) {
 		printf("GYRO connect - [OK]\n");
 		FlashValid = GetFlashCal(SENSOR_GYRO, Cal);
 		
@@ -176,18 +176,18 @@ void SensorInitMAG()
 	bool FlashValid;
 	int i;
 	
-	if(!SensorInitState.MAG_Done) {
+	if(!SensorInitState[nvtGetAHRSID()].MAG_Done) {
 #ifdef HMC5883
-		SensorInitState.MAG_Done = hmc5883lInit();
+		SensorInitState[nvtGetAHRSID()].MAG_Done = hmc5883lInit();
 		hmc5883lSelfTest();
 		hmc5883lGetRatioFactor(&magCal[0],&magCal[1],&magCal[2]);
 #endif
 #ifdef AK8975
-		SensorInitState.MAG_Done = AK8975_initialize();
+		SensorInitState[nvtGetAHRSID()].MAG_Done = AK8975_initialize();
 #endif
 	}
 	
-	if(SensorInitState.MAG_Done) {
+	if(SensorInitState[nvtGetAHRSID()].MAG_Done) {
 		if (report_format == REPORT_FORMAT_TEXT) 
 		printf("MAG connect - [OK]\n");
 		FlashValid = GetFlashCal(SENSOR_MAG, Cal);
@@ -243,32 +243,32 @@ void SensorInitBARO()
 {
 #if STACK_BARO
 #ifdef BMP085
-		SensorInitState.BARO_Done = begin(BMP085_ULTRAHIGHRES);
-	if(SensorInitState.BARO_Done)
-		SensorInitState.BARO_BRAND = BMP085;
+		SensorInitState[AHRSID].BARO_Done = begin(BMP085_ULTRAHIGHRES);
+	if(SensorInitState[AHRSID].BARO_Done)
+		SensorInitState[AHRSID].BARO_BRAND = BMP085;
 #endif
-		SensorInitState.BARO_Done = ms5611Init();
-	if(SensorInitState.BARO_Done) {
-		SensorInitState.BARO_BRAND = MS5611;
+		SensorInitState[AHRSID].BARO_Done = ms5611Init();
+	if(SensorInitState[AHRSID].BARO_Done) {
+		SensorInitState[AHRSID].BARO_BRAND = MS5611;
 		printf("Baro Sensor - [MS5611]\n"); 
 	}
 	else {
-		SensorInitState.BARO_Done = Int_BMP280();
-	if(SensorInitState.BARO_Done) {
-			SensorInitState.BARO_BRAND = BMP280;
+		SensorInitState[AHRSID].BARO_Done = Int_BMP280();
+	if(SensorInitState[AHRSID].BARO_Done) {
+			SensorInitState[AHRSID].BARO_BRAND = BMP280;
 			printf("Baro Sensor - [BMP280]\n"); 
 		}
 		else 
 			printf("Baro Sensor - [NA]\n"); 
 	}
 
-	if(SensorInitState.BARO_Done) {
-		switch (SensorInitState.BARO_BRAND) {
+	if(SensorInitState[AHRSID].BARO_Done) {
+		switch (SensorInitState[AHRSID].BARO_BRAND) {
 #ifdef BMP085
 			case BMP085:
 		TriggerRawPressure();
 		DelayMsec(24);
-		SensorInitState.BARO_BasePressure = readRawPressure();
+		SensorInitState[AHRSID].BARO_BasePressure = readRawPressure();
 		TriggerRawTemperature();
 		BaroDoTick = getTickCount() + 15;
 		BaroDoState = 0;
@@ -375,7 +375,7 @@ bool SensorReadBARO()
 {
 #if STACK_BARO
 #ifdef BMP085
-	if(SensorInitState.BARO_BRAND==BMP085) {
+	if(SensorInitState[AHRSID].BARO_BRAND==BMP085) {
 	if((getTickCount()>BaroDoTick)) {
 		BaroDoTick = getTickCount() + 6;
 		if(BaroDoState==0) {
@@ -388,7 +388,7 @@ bool SensorReadBARO()
 			return false;
 		}
 		else {
-			Sensor.rawBARO[0] = readRawPressure() - SensorInitState.BARO_BasePressure;
+			Sensor.rawBARO[0] = readRawPressure() - SensorInitState[AHRSID].BARO_BasePressure;
 			Sensor.BaroInfo.baroPressure = readPressure();
 			TriggerRawTemperature();
 			BaroDoState = 0;
@@ -401,7 +401,7 @@ bool SensorReadBARO()
 	}
 	else 
 #endif
-	if(SensorInitState.BARO_BRAND==MS5611) {
+	if(SensorInitState[AHRSID].BARO_BRAND==MS5611) {
 	static float temperature,pressure,BaroAlt;
 	bool beUpdate;
 	
@@ -444,19 +444,19 @@ void SensorReadSpeed()
 void SensorsRead(char SensorType, char interval)
 {
 #if STACK_BARO
-	if(SensorType&SENSOR_BARO&&SensorInitState.BARO_Done) {
+	if(SensorType&SENSOR_BARO&&SensorInitState[AHRSID].BARO_Done) {
 		if(SensorReadBARO())
 			nvtInputSensorRawBARO(&Sensor.rawBARO[0]);
 	}
 #endif
 #if STACK_ACC
-	if(SensorType&SENSOR_ACC&&SensorInitState.ACC_Done) {
+	if(SensorType&SENSOR_ACC&&SensorInitState[nvtGetAHRSID()].ACC_Done) {
 		SensorReadACC();
 		nvtInputSensorRawACC(&Sensor.rawACC[0]);
 	}
 #endif
 #if STACK_MAG
-	if(SensorType&SENSOR_MAG&&SensorInitState.MAG_Done) {
+	if(SensorType&SENSOR_MAG&&SensorInitState[AHRSID].MAG_Done) {
 		if((GetFrameCount()%interval)==0) {
 		SensorReadMAG();
 		nvtInputSensorRawMAG(&Sensor.rawMAG[0]);
@@ -470,7 +470,7 @@ void SensorsRead(char SensorType, char interval)
 	}
 #endif
 	#if STACK_GYRO
-	if(SensorType&SENSOR_GYRO&&SensorInitState.GYRO_Done) {
+	if(SensorType&SENSOR_GYRO&&SensorInitState[nvtGetAHRSID()].GYRO_Done) {
 		SensorReadGYRO();
 		nvtInputSensorRawGYRO(&Sensor.rawGYRO[0]);
 	}
@@ -487,12 +487,12 @@ void SensorsRead(char SensorType, char interval)
 void SensorsDynamicCalibrate(char SensorType)
 {
 #if STACK_ACC
-	if(SensorType&SENSOR_ACC&&SensorInitState.ACC_Done) {
+	if(SensorType&SENSOR_ACC&&SensorInitState[nvtGetAHRSID()].ACC_Done) {
 		/* TBD */
 	}
 #endif
 #if STACK_GYRO
-	if(SensorType&SENSOR_GYRO&&SensorInitState.GYRO_Done) {
+	if(SensorType&SENSOR_GYRO&&SensorInitState[nvtGetAHRSID()].GYRO_Done) {
 		if(!SensorCalState.GYRO_Done) {
 			if(nvtGyroCenterCalibrate()!=STATUS_GYRO_CAL_DONE)
 				led_arm_state(LED_STATE_TOGGLE);
@@ -508,7 +508,7 @@ void SensorsDynamicCalibrate(char SensorType)
 	}
 #endif
 #if STACK_MAG
-	if(SensorType&SENSOR_MAG&&SensorInitState.MAG_Done) {
+	if(SensorType&SENSOR_MAG&&SensorInitState[AHRSID].MAG_Done) {
 		if(!SensorCalState.MAG_Done) {
 			static float rpy[3],lastY,diff;
 			nvtGetEulerRPY(rpy);
@@ -530,7 +530,7 @@ char GetSensorInitState()
 {
 	char InitState = 0;
 	
-	InitState = ((SensorInitState.ACC_Done<<ACC))|((SensorInitState.GYRO_Done<<GYRO))|((SensorInitState.MAG_Done<<MAG)|((SensorInitState.BARO_Done<<BARO)));
+	InitState = ((SensorInitState[nvtGetAHRSID()].ACC_Done<<ACC))|((SensorInitState[nvtGetAHRSID()].GYRO_Done<<GYRO))|((SensorInitState[nvtGetAHRSID()].MAG_Done<<MAG)|((SensorInitState[nvtGetAHRSID()].BARO_Done<<BARO)));
 	return InitState;
 }
 
@@ -544,7 +544,7 @@ char GetSensorCalState()
 int32_t GetBaroBasePressure()
 {
 #if STACK_BARO
-	return SensorInitState.BARO_BasePressure;
+	return SensorInitState[AHRSID].BARO_BasePressure;
 #else
 	return 0;
 #endif

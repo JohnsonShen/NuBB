@@ -261,6 +261,7 @@ void MPU6050_setClockSource(uint8_t source) {
 }
 
 uint8_t MPU6050_getDeviceID() {
+    buffer[0] = 0;
     I2C_readBits(devAddr, MPU6050_RA_WHO_AM_I, MPU6050_WHO_AM_I_BIT, MPU6050_WHO_AM_I_LENGTH, buffer,1);
     return buffer[0];
 }
@@ -274,7 +275,7 @@ void MPU6050_ADDR(uint8_t address) {
 
 bool MPU6050_initialize() {
 	bool connect;
-	MPU6050_ADDR(MPU6050_DEFAULT_ADDRESS);
+	MPU6050_ADDR(devAddr);
 	connect = MPU6050_testConnection();
 
 	if(connect) {
