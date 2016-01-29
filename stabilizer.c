@@ -144,11 +144,14 @@ void commanderGetRPY()
 #ifdef ABROBOT
   //rc_roll = -rc_roll;
   rc_yaw = rc_roll;
-#ifdef WSPEED
-#else
+
 #ifdef  DEGREE
     rc_yaw = -(rc_aux1 - 128)*15;
 
+#else
+#ifdef WSPEED
+  //if((GetFrameCount()%500)==0)
+  //    printf("rc_yaw,rcData[YAW_CH],:%d %d\n",rc_yaw, rcData[YAW_CH]);
 #else
   if(rc_aux1==128)
     rc_yaw = 0;
@@ -158,6 +161,7 @@ void commanderGetRPY()
     rc_yaw = -YAW_SPEED*YawSpeedFactor;
 #endif
 #endif
+
   rc_roll =0;
   rc_pitch = 0;
   if(!magMode)
@@ -218,7 +222,7 @@ void commanderGetRPY()
 	}
 #else
 #ifdef DEGREE
-  	if (fabs(rc_yaw)==0) {
+  	if (rc_aux1==255) {
 		if(magMode&&(!headFreeMode)) {
 			int16_t dif = eulerYawActual - headHold;
       
@@ -247,14 +251,23 @@ void commanderGetRPY()
   //if((GetFrameCount()%500)==0)
   //    printf("headHoldrc_yaw,Desire,Actual:%f %d %f %f\n",headHold,rc_yaw, eulerYawDesired, eulerYawActual);
 #else
+
+#ifdef WSPEED
+  if (fabs(rc_yaw)==0) {
+		eulerYawDesired = 0;
+	} 
+	else {
+		eulerYawDesired = rc_yaw;
+	}
+  //if((GetFrameCount()%500)==0)
+  //    printf("headHoldrc_yaw,Desire,Actual:%f %d %f %f\n",headHold,rc_yaw, eulerYawDesired, eulerYawActual);
+#else  
   if(fabs(rc_yaw)<3) {
 			
 	} 
 	else {
 		if(magMode)
 			HoldHead();
-#ifdef WSPEED
-#else
 		if(rc_yaw>0)
 			eulerYawDesired+=(((float)rc_yaw/100.0f*YAW_DEG_MAX/(RC_YAW_MAX-RC_YAW_MID)));
 		else
@@ -263,10 +276,11 @@ void commanderGetRPY()
     if(eulerYawDesired<-180)
 				eulerYawDesired = eulerYawDesired + 360;
 			else if(eulerYawDesired>180)
-				eulerYawDesired = eulerYawDesired - 360;
+				eulerYawDesired = eulerYawDesired - 360;	
+}
 #endif   
     
-	}
+
   
 #endif
 #endif
@@ -603,11 +617,11 @@ void stabilizer()
 	else
 #endif
 	commanderGetThrust();
-	//printf("%f  %f  %f \n", rollRateDesired, pitchRateDesired, yawRateDesired);
-  //Jtest
-//#ifdef WSPEED
-//	yawRateDesired = -eulerYawDesired;
-//#endif
+	
+#ifdef WSPEED
+	yawRateDesired = -eulerYawDesired;
+#endif
+  //printf("%f  %f  %f \n", rollRateDesired, pitchRateDesired, yawRateDesired);
 	nvtGetCalibratedGYRO(gyro);
 	controllerCorrectRatePID(gyro[0], gyro[1], gyro[2],
 				rollRateDesired, pitchRateDesired, yawRateDesired);
