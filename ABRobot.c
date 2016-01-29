@@ -123,13 +123,13 @@ void GPD_IRQHandler(void)
 						motor_enable=0;
 						TIMER_Delay(TIMER0,100);
 						key_cnt++;
-						if ((key_cnt%100)<(100-(key_cnt/200)))
+						if ((key_cnt/3570)%2==0)
 								PA->DOUT = 0x8048;	//turn on red led
 						else
 								PA->DOUT = 0;
-						if(key_cnt>16000)
+						if(key_cnt>45000)
 								PD10=1;
-						if(key_cnt>20000)
+						if(key_cnt>49000)
 						{
 								PD10=1;
 								keyin=0;
@@ -142,8 +142,6 @@ void GPD_IRQHandler(void)
 								break;						
 						}
 				}
-				if((key_cnt>16000)&&(key_cnt<20000))
-						PD10=0;
 				if (PD10==0)
 				{
 						PA->DOUT = 0x8048;						
@@ -442,9 +440,9 @@ void CommandProcess()
 						}
 						else if((buf[0] == 0x02)&&(buf[1] == 00)){
 										rcValueSSV[AUX1_CH] = buf[2];
-										spin=buf[3];
-                    if(spin==0)
-                        spin_cnt=80;
+//										spin=buf[3];
+//                    if(spin==0)
+//                        spin_cnt=80;
 						}						
 						else if((buf[0] == 0x07)&&(buf[1] == 00)){
 										if (buf[2]==1)

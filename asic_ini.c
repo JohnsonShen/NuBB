@@ -41,7 +41,7 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #include "asic_ini.h"
 #include "Def.h"
 #include "Timer_Ctrl.h"
-extern uint32_t LED1_R, LED1_G, LED1_B, Blink;
+extern uint32_t LED1_R, LED1_G, LED1_B, Blink,brea;
 uint32_t ini_Tick,cur_Tick;
 uint8_t ini_start=0,asic_ready=1;
 
@@ -74,6 +74,7 @@ uint8_t asic_power(uint8_t key)
 			LED1_G=0;
 			LED1_B=0;
 			Blink=10;
+			brea=0;
 			PD10=0;
 			ini_start=1;
 	}
@@ -86,6 +87,7 @@ uint8_t asic_power(uint8_t key)
 					uint32_t LEDM;
 					cur_Tick=getTickCount();
 					LEDM=(cur_Tick-ini_Tick)/300;
+					brea=0;
 					if ((LEDM%3)==0)
 					{
 						LED1_R=100;
@@ -112,6 +114,7 @@ uint8_t asic_power(uint8_t key)
 					LED1_G=0;
 					LED1_B=0;
 					Blink=10;
+					brea=0;
 					PD10=0;
 					ini_start=2;
 			}

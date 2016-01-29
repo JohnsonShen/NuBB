@@ -46,7 +46,7 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 //#define IO_STATE_ARM        E_GPB, 8
 //#endif  
 static char ledState = 0;
-uint32_t LED1_R, LED1_G, LED1_B, Blink,LED_cnt=0;
+uint32_t LED1_R, LED1_G, LED1_B, Blink,brea=0,brea_cnt=0,LED_cnt=0;
 extern uint32_t BAT_LED_R, BAT_LED_G, BAT_LED_B, BAT_Blink, BAT_LED_EN;
 extern uint32_t COM_LED_R, COM_LED_G, COM_LED_B, COM_Blink,COM_LED_EN;
 extern uint8_t ini_start;
@@ -54,20 +54,30 @@ void TMR1_IRQHandler(void)
 {
     if(TIMER_GetIntFlag(TIMER1) == 1)
     {
-        uint32_t LED_duty,RLED,BLED,GLED;
+        uint32_t LED_duty,RLED,BLED,GLED,LED_brea;
         /* Clear Timer1 time-out interrupt flag */
         TIMER_ClearIntFlag(TIMER1);
 				LED_cnt++;
 				LED_duty=LED_cnt%100;
-				RLED=((int32_t)(LED1_R-LED_duty)>0)?1:0;
-				BLED=((int32_t)(LED1_B-LED_duty)>0)?1:0;
-				GLED=((int32_t)(LED1_G-LED_duty)>0)?1:0;				
+				if ((brea==1)&&((brea_cnt%2)==0))
+						LED_brea=100-(LED_cnt/100);
+				else if (brea==1)
+						LED_brea=LED_cnt/100;
+				else
+						LED_brea=0;
+				LED_brea=LED_brea*LED_brea/100;
+				RLED=((int32_t)(LED1_R-LED_duty-LED_brea)>0)?1:0;
+				BLED=((int32_t)(LED1_B-LED_duty-LED_brea)>0)?1:0;
+				GLED=((int32_t)(LED1_G-LED_duty-LED_brea)>0)?1:0;				
 				if (LED_cnt<(Blink*1000))
 						PA->DOUT = (RLED<<3)|(RLED<<6)|(RLED<<15)|(GLED<<2)|(GLED<<5)|(GLED<<14)|(BLED<<1)|(BLED<<4)|(BLED<<13);
 				else 
 						PA->DOUT = 0;
 				if (LED_cnt==10000)
+				{
 						LED_cnt=0;
+						brea_cnt++;
+				}
     }
 }
 
@@ -126,6 +136,7 @@ void UpdateLED()
 				LED1_G=COM_LED_G;
 				LED1_B=COM_LED_B;
 				Blink=COM_Blink;
+				brea=0;
 		}
 		else if ((BAT_LED_EN==1)&&(ini_start==0))
 		{
@@ -133,6 +144,7 @@ void UpdateLED()
 				LED1_G=BAT_LED_G;
 				LED1_B=BAT_LED_B;
 				Blink=BAT_Blink;
+				brea=1;
 		}
 		else if ((COM_LED_EN==0)&&(BAT_LED_EN==0)&&(ini_start==0))
 		{
@@ -140,6 +152,7 @@ void UpdateLED()
 				LED1_G=0;
 				LED1_B=0;
 				Blink=0;
+				brea=0;
 		}
 
 }

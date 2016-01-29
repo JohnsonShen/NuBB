@@ -255,7 +255,7 @@ void led_level(void)
 							BAT_LED_R=100;
 							BAT_LED_G=0;
 							BAT_LED_B=0;
-							BAT_Blink=2;
+							BAT_Blink=10;
 				}
 		}
 }
@@ -379,7 +379,7 @@ void UpdateBattery()
 							USB_CS = 0;
 							Dis_charge = 0;
 							led_level();
-							BAT_Blink=5;
+							BAT_Blink=10;
 							BAT_LED_EN=1;
 							charge=2;
 							PD11=0;
@@ -400,7 +400,7 @@ void UpdateBattery()
 							USB_CS = 1;
 							Dis_charge = 0;
 							led_level();
-							BAT_Blink=5;
+							BAT_Blink=10;
 							BAT_LED_EN=1;
 							charge=2;
 							PD11=0;
