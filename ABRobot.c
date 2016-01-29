@@ -618,11 +618,12 @@ void loop()
 		UpdateBattery();
 	}
 	if(ChronographRead(ChronRC)>= OUTPUT_RC_INTERVAL) {
-    if((GetFrameCount()%2)==0)
+    if((GetFrameCount()%2)==0) {
       SensorsDynamicCalibrate(SENSOR_GYRO|SENSOR_MAG);
-		ChronographSet(ChronRC);
-		computeRC();
-		armDetect();
+      ChronographSet(ChronRC);
+      computeRC();
+      armDetect();
+    }
 	}
 #endif
 	if(getMagMode()||!(GetSensorCalState()&(1<<MAG)))
