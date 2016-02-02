@@ -146,7 +146,10 @@ void commanderGetRPY()
   rc_yaw = rc_roll;
 
 #ifdef  DEGREE
-    rc_yaw = -(rc_aux1 - 128)*15;
+    if(rc_aux1==255)
+      rc_yaw = 0;
+    else
+      rc_yaw = -(rc_aux1 - 128)*15;
 
 #else
 #ifdef WSPEED
@@ -222,12 +225,14 @@ void commanderGetRPY()
 	}
 #else
 #ifdef DEGREE
-  	if (rc_aux1==255) {
+  	if ((rc_aux1==255)||(rc_yaw==0)) {
 		if(magMode&&(!headFreeMode)) {
 			int16_t dif = eulerYawActual - headHold;
       
-      if(yaw_last!=0)
+      if((yaw_last!=0)&&(rc_aux1==255)) {
         HoldHead();
+        yaw_last = 0;
+      }
 			
 			/*if(dif<-180)
 				dif = dif + 360;
