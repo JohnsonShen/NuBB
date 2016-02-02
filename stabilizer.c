@@ -96,7 +96,7 @@ bool getHeadFreeMode()
 void stabilizerInit(void)
 {
 	controllerInit();
-	motorsInit();
+
 #if STACK_BARO
 	SetAltHoldPIDObj(GetAltHoldPIDObj());
 #endif

@@ -33,21 +33,22 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #include "param.h"
 #include "FlashCtrl.h"
 #include "Timer_Ctrl.h"
+#include "Report.h"
 //Fancier version
 #define TRUNCATE_SINT16(out, in) (out = (in<INT16_MIN)?INT16_MIN:((in>INT16_MAX)?INT16_MAX:in) )
 
 //Better semantic
 #define SATURATE_SINT16(in) ( (in<INT16_MIN)?INT16_MIN:((in>INT16_MAX)?INT16_MAX:in) )
 
-PidObject pidRollRate;
-PidObject pidPitchRate;
-PidObject pidYawRate;
-PidObject pidRoll;
-PidObject pidPitch;
-PidObject pidYaw;
-PidObject pidAltHold; // Used for altitute hold mode. I gets reset when the bat status changes
+PidObject pidRollRate[2];
+PidObject pidPitchRate[2];
+PidObject pidYawRate[2];
+PidObject pidRoll[2];
+PidObject pidPitch[2];
+PidObject pidYaw[2];
+PidObject pidAltHold[2]; // Used for altitute hold mode. I gets reset when the bat status changes
 #ifdef ABROBOT
-PidObject pidSpeed;
+PidObject pidSpeed[2];
 #endif
 
 int16_t rollOutput;
@@ -67,38 +68,36 @@ bool LoadFlashPID()
 	FlashValid = GetFlashPID(PID_FIELD);
 	IMU_UPDATE_DT = getUpdateDT();
 	if(FlashValid) {
-		pidInit(&pidRoll, 0, PID_FIELD[0], PID_FIELD[1], PID_FIELD[2], IMU_UPDATE_DT);
-		pidInit(&pidPitch, 0, PID_FIELD[3], PID_FIELD[4], PID_FIELD[5], IMU_UPDATE_DT);
-		pidInit(&pidYaw, 0, PID_FIELD[6], PID_FIELD[7], PID_FIELD[8], IMU_UPDATE_DT);
-		pidInit(&pidRollRate, 0, PID_FIELD[9], PID_FIELD[10], PID_FIELD[11], IMU_UPDATE_DT);
-		pidInit(&pidPitchRate, 0, PID_FIELD[12], PID_FIELD[13], PID_FIELD[14], IMU_UPDATE_DT);
-		pidInit(&pidYawRate, 0, PID_FIELD[15], PID_FIELD[16], PID_FIELD[17], IMU_UPDATE_DT);
+		pidInit(&pidRoll[GetAHRSReport()], 0, PID_FIELD[0], PID_FIELD[1], PID_FIELD[2], IMU_UPDATE_DT);
+		pidInit(&pidPitch[GetAHRSReport()], 0, PID_FIELD[3], PID_FIELD[4], PID_FIELD[5], IMU_UPDATE_DT);
+		pidInit(&pidYaw[GetAHRSReport()], 0, PID_FIELD[6], PID_FIELD[7], PID_FIELD[8], IMU_UPDATE_DT);
+		pidInit(&pidRollRate[GetAHRSReport()], 0, PID_FIELD[9], PID_FIELD[10], PID_FIELD[11], IMU_UPDATE_DT);
+		pidInit(&pidPitchRate[GetAHRSReport()], 0, PID_FIELD[12], PID_FIELD[13], PID_FIELD[14], IMU_UPDATE_DT);
+		pidInit(&pidYawRate[GetAHRSReport()], 0, PID_FIELD[15], PID_FIELD[16], PID_FIELD[17], IMU_UPDATE_DT);
 #ifdef ABROBOT
-    pidInit(&pidSpeed, 0, PID_FIELD[18], PID_FIELD[19], PID_FIELD[20], IMU_UPDATE_DT);
+    pidInit(&pidSpeed[GetAHRSReport()], 0, PID_FIELD[18], PID_FIELD[19], PID_FIELD[20], IMU_UPDATE_DT);
 #else
-		pidInit(&pidAltHold, 0, PID_FIELD[18], PID_FIELD[19], PID_FIELD[20], ALTHOLD_UPDATE_DT);
+		pidInit(&pidAltHold[GetAHRSReport()], 0, PID_FIELD[18], PID_FIELD[19], PID_FIELD[20], ALTHOLD_UPDATE_DT);
 #endif
 		return true;
 	}
 	else {
-		pidInit(&pidRoll, 0, PID_ROLL_KP, PID_ROLL_KI, PID_ROLL_KD, IMU_UPDATE_DT);
-		pidInit(&pidPitch, 0, PID_PITCH_KP, PID_PITCH_KI, PID_PITCH_KD, IMU_UPDATE_DT);
-		pidInit(&pidYaw, 0, PID_YAW_KP, PID_YAW_KI, PID_YAW_KD, IMU_UPDATE_DT);
-		pidInit(&pidRollRate, 0, PID_ROLL_RATE_KP, PID_ROLL_RATE_KI, PID_ROLL_RATE_KD, IMU_UPDATE_DT);
-		pidInit(&pidPitchRate, 0, PID_PITCH_RATE_KP, PID_PITCH_RATE_KI, PID_PITCH_RATE_KD, IMU_UPDATE_DT);
-		pidInit(&pidYawRate, 0, PID_YAW_RATE_KP, PID_YAW_RATE_KI, PID_YAW_RATE_KD, IMU_UPDATE_DT);
+		pidInit(&pidRoll[GetAHRSReport()], 0, PID_ROLL_KP, PID_ROLL_KI, PID_ROLL_KD, IMU_UPDATE_DT);
+		pidInit(&pidPitch[GetAHRSReport()], 0, PID_PITCH_KP, PID_PITCH_KI, PID_PITCH_KD, IMU_UPDATE_DT);
+		pidInit(&pidYaw[GetAHRSReport()], 0, PID_YAW_KP, PID_YAW_KI, PID_YAW_KD, IMU_UPDATE_DT);
+		pidInit(&pidRollRate[GetAHRSReport()], 0, PID_ROLL_RATE_KP, PID_ROLL_RATE_KI, PID_ROLL_RATE_KD, IMU_UPDATE_DT);
+		pidInit(&pidPitchRate[GetAHRSReport()], 0, PID_PITCH_RATE_KP, PID_PITCH_RATE_KI, PID_PITCH_RATE_KD, IMU_UPDATE_DT);
+		pidInit(&pidYawRate[GetAHRSReport()], 0, PID_YAW_RATE_KP, PID_YAW_RATE_KI, PID_YAW_RATE_KD, IMU_UPDATE_DT);
 #ifdef ABROBOT
-    pidInit(&pidSpeed, 0, PID_SPEED_KP, PID_SPEED_KI, PID_SPEED_KD, IMU_UPDATE_DT);
+    pidInit(&pidSpeed[GetAHRSReport()], 0, PID_SPEED_KP, PID_SPEED_KI, PID_SPEED_KD, IMU_UPDATE_DT);
 #else
-		pidInit(&pidAltHold, 0, PID_ALTHOLD_KP, PID_ALTHOLD_KI, PID_ALTHOLD_KD, ALTHOLD_UPDATE_DT);
+		pidInit(&pidAltHold[GetAHRSReport()], 0, PID_ALTHOLD_KP, PID_ALTHOLD_KI, PID_ALTHOLD_KD, ALTHOLD_UPDATE_DT);
 #endif
 		return false;
 	}
 }
 void controllerInit()
 {
-	if(isInit)
-		return;
 
 	if(LoadFlashPID()==false)
 		printf("Load PID from [DEFAULT]\n");
@@ -106,37 +105,37 @@ void controllerInit()
 		printf("Load PID from [FLASH]\n");
 #ifdef ABROBOT
 	/* TBD for ABROBOT proper LIMIT */
-	pidSetIntegralLimit(&pidRollRate, PID_ROLL_RATE_INTEGRATION_LIMIT);
-	pidSetIntegralLimit(&pidPitchRate, PID_PITCH_RATE_INTEGRATION_LIMIT);
-	pidSetIntegralLimit(&pidYawRate, PID_YAW_RATE_INTEGRATION_LIMIT);
+	pidSetIntegralLimit(&pidRollRate[GetAHRSReport()], PID_ROLL_RATE_INTEGRATION_LIMIT);
+	pidSetIntegralLimit(&pidPitchRate[GetAHRSReport()], PID_PITCH_RATE_INTEGRATION_LIMIT);
+	pidSetIntegralLimit(&pidYawRate[GetAHRSReport()], PID_YAW_RATE_INTEGRATION_LIMIT);
 
-	pidSetIntegralLimitLow(&pidRollRate, -PID_ROLL_RATE_INTEGRATION_LIMIT);
-	pidSetIntegralLimitLow(&pidPitchRate, -PID_PITCH_RATE_INTEGRATION_LIMIT);
-	pidSetIntegralLimitLow(&pidYawRate, -PID_YAW_RATE_INTEGRATION_LIMIT);
+	pidSetIntegralLimitLow(&pidRollRate[GetAHRSReport()], -PID_ROLL_RATE_INTEGRATION_LIMIT);
+	pidSetIntegralLimitLow(&pidPitchRate[GetAHRSReport()], -PID_PITCH_RATE_INTEGRATION_LIMIT);
+	pidSetIntegralLimitLow(&pidYawRate[GetAHRSReport()], -PID_YAW_RATE_INTEGRATION_LIMIT);
 
-	pidSetIntegralLimit(&pidRoll, PID_ROLL_INTEGRATION_LIMIT);
-	pidSetIntegralLimit(&pidPitch, PID_PITCH_INTEGRATION_LIMIT);
-	pidSetIntegralLimit(&pidYaw, PID_YAW_INTEGRATION_LIMIT);
+	pidSetIntegralLimit(&pidRoll[GetAHRSReport()], PID_ROLL_INTEGRATION_LIMIT);
+	pidSetIntegralLimit(&pidPitch[GetAHRSReport()], PID_PITCH_INTEGRATION_LIMIT);
+	pidSetIntegralLimit(&pidYaw[GetAHRSReport()], PID_YAW_INTEGRATION_LIMIT);
   
-	pidSetIntegralLimitLow(&pidRoll, -PID_ROLL_INTEGRATION_LIMIT);
-	pidSetIntegralLimitLow(&pidPitch, -PID_PITCH_INTEGRATION_LIMIT);
-	pidSetIntegralLimitLow(&pidYaw, -PID_YAW_INTEGRATION_LIMIT);
+	pidSetIntegralLimitLow(&pidRoll[GetAHRSReport()], -PID_ROLL_INTEGRATION_LIMIT);
+	pidSetIntegralLimitLow(&pidPitch[GetAHRSReport()], -PID_PITCH_INTEGRATION_LIMIT);
+	pidSetIntegralLimitLow(&pidYaw[GetAHRSReport()], -PID_YAW_INTEGRATION_LIMIT);
 #else
-	pidSetIntegralLimit(&pidRollRate, PID_ROLL_RATE_INTEGRATION_LIMIT);
-	pidSetIntegralLimit(&pidPitchRate, PID_PITCH_RATE_INTEGRATION_LIMIT);
-	pidSetIntegralLimit(&pidYawRate, PID_YAW_RATE_INTEGRATION_LIMIT);
+	pidSetIntegralLimit(&pidRollRate[GetAHRSReport()], PID_ROLL_RATE_INTEGRATION_LIMIT);
+	pidSetIntegralLimit(&pidPitchRate[GetAHRSReport()], PID_PITCH_RATE_INTEGRATION_LIMIT);
+	pidSetIntegralLimit(&pidYawRate[GetAHRSReport()], PID_YAW_RATE_INTEGRATION_LIMIT);
 
-	pidSetIntegralLimitLow(&pidRollRate, -PID_ROLL_RATE_INTEGRATION_LIMIT);
-	pidSetIntegralLimitLow(&pidPitchRate, -PID_PITCH_RATE_INTEGRATION_LIMIT);
-	pidSetIntegralLimitLow(&pidYawRate, -PID_YAW_RATE_INTEGRATION_LIMIT);
+	pidSetIntegralLimitLow(&pidRollRate[GetAHRSReport()], -PID_ROLL_RATE_INTEGRATION_LIMIT);
+	pidSetIntegralLimitLow(&pidPitchRate[GetAHRSReport()], -PID_PITCH_RATE_INTEGRATION_LIMIT);
+	pidSetIntegralLimitLow(&pidYawRate[GetAHRSReport()], -PID_YAW_RATE_INTEGRATION_LIMIT);
 
-	pidSetIntegralLimit(&pidRoll, PID_ROLL_INTEGRATION_LIMIT);
-	pidSetIntegralLimit(&pidPitch, PID_PITCH_INTEGRATION_LIMIT);
-	pidSetIntegralLimit(&pidYaw, PID_YAW_INTEGRATION_LIMIT);
+	pidSetIntegralLimit(&pidRoll[GetAHRSReport()], PID_ROLL_INTEGRATION_LIMIT);
+	pidSetIntegralLimit(&pidPitch[GetAHRSReport()], PID_PITCH_INTEGRATION_LIMIT);
+	pidSetIntegralLimit(&pidYaw[GetAHRSReport()], PID_YAW_INTEGRATION_LIMIT);
   
-	pidSetIntegralLimitLow(&pidRoll, -PID_ROLL_INTEGRATION_LIMIT);
-	pidSetIntegralLimitLow(&pidPitch, -PID_PITCH_INTEGRATION_LIMIT);
-	pidSetIntegralLimitLow(&pidYaw, -PID_YAW_INTEGRATION_LIMIT);
+	pidSetIntegralLimitLow(&pidRoll[GetAHRSReport()], -PID_ROLL_INTEGRATION_LIMIT);
+	pidSetIntegralLimitLow(&pidPitch[GetAHRSReport()], -PID_PITCH_INTEGRATION_LIMIT);
+	pidSetIntegralLimitLow(&pidYaw[GetAHRSReport()], -PID_YAW_INTEGRATION_LIMIT);
 #endif
 	isInit = true;
 }
@@ -151,20 +150,20 @@ void controllerCorrectRatePID(
 				float rollRateDesired, float pitchRateDesired, float yawRateDesired)
 {
 	float pidOut;
-	pidSetDesired(&pidRollRate, rollRateDesired);
-	pidSetDt(&pidRollRate,getUpdateDT());
-	pidOut = pidUpdate(&pidRollRate, rollRateActual, TRUE);
+	pidSetDesired(&pidRollRate[nvtGetAHRSID()], rollRateDesired);
+	pidSetDt(&pidRollRate[nvtGetAHRSID()],getUpdateDT());
+	pidOut = pidUpdate(&pidRollRate[nvtGetAHRSID()], rollRateActual, TRUE);
 	TRUNCATE_SINT16(rollOutput, pidOut);
 	//printf("%f %f %f %f\n",pidOut,pidRollRate.outP,pidRollRate.outI,pidRollRate.outD);
-	pidSetDesired(&pidPitchRate, pitchRateDesired);
-	pidSetDt(&pidPitchRate,getUpdateDT());
-	pidOut = pidUpdate(&pidPitchRate, pitchRateActual, TRUE);
+	pidSetDesired(&pidPitchRate[nvtGetAHRSID()], pitchRateDesired);
+	pidSetDt(&pidPitchRate[nvtGetAHRSID()],getUpdateDT());
+	pidOut = pidUpdate(&pidPitchRate[nvtGetAHRSID()], pitchRateActual, TRUE);
 	TRUNCATE_SINT16(pitchOutput, pidOut);
 
 	//printf("%f %f %f %f\n",pidOut,pidPitchRate.outP,pidPitchRate.outI,pidPitchRate.outD);
-	pidSetDesired(&pidYawRate, yawRateDesired);
-	pidSetDt(&pidYawRate,getUpdateDT());
-	pidOut = pidUpdate(&pidYawRate, yawRateActual, TRUE);
+	pidSetDesired(&pidYawRate[nvtGetAHRSID()], yawRateDesired);
+	pidSetDt(&pidYawRate[nvtGetAHRSID()],getUpdateDT());
+	pidOut = pidUpdate(&pidYawRate[nvtGetAHRSID()], yawRateActual, TRUE);
 	TRUNCATE_SINT16(yawOutput, pidOut);
 }
 
@@ -174,14 +173,14 @@ void controllerCorrectAttitudePID(
 				float* rollRateDesired, float* pitchRateDesired, float* yawRateDesired)
 {
 	float yawError;
-	pidSetDesired(&pidRoll, eulerRollDesired);
-	pidSetDt(&pidRoll,getUpdateDT());
-	*rollRateDesired = pidUpdate(&pidRoll, eulerRollActual, TRUE);
+	pidSetDesired(&pidRoll[nvtGetAHRSID()], eulerRollDesired);
+	pidSetDt(&pidRoll[nvtGetAHRSID()],getUpdateDT());
+	*rollRateDesired = pidUpdate(&pidRoll[nvtGetAHRSID()], eulerRollActual, TRUE);
 
 	// Update PID for pitch axis
-	pidSetDesired(&pidPitch, eulerPitchDesired);
-	pidSetDt(&pidPitch,getUpdateDT());
-	*pitchRateDesired = pidUpdate(&pidPitch, eulerPitchActual, TRUE);
+	pidSetDesired(&pidPitch[nvtGetAHRSID()], eulerPitchDesired);
+	pidSetDt(&pidPitch[nvtGetAHRSID()],getUpdateDT());
+	*pitchRateDesired = pidUpdate(&pidPitch[nvtGetAHRSID()], eulerPitchActual, TRUE);
 
 	// Update PID for yaw axis
 	yawError = eulerYawDesired - eulerYawActual;
@@ -190,9 +189,9 @@ void controllerCorrectAttitudePID(
 	else if (yawError < -180.0f)
 		yawError += 360.0f;
 	
-	pidSetError(&pidYaw, yawError);
-	pidSetDt(&pidYaw,getUpdateDT());
-	*yawRateDesired = pidUpdate(&pidYaw, eulerYawActual, FALSE);
+	pidSetError(&pidYaw[nvtGetAHRSID()], yawError);
+	pidSetDt(&pidYaw[nvtGetAHRSID()],getUpdateDT());
+	*yawRateDesired = pidUpdate(&pidYaw[nvtGetAHRSID()], eulerYawActual, FALSE);
 }
 #ifdef ABROBOT
 void controllerCorrectSpeedPID(
@@ -200,101 +199,101 @@ void controllerCorrectSpeedPID(
 				float speedDesired)
 { 
   float pidOut;
-	pidSetDesired(&pidSpeed, speedDesired);
-	pidSetDt(&pidSpeed,getUpdateDT());
-	pidOut = pidUpdate(&pidSpeed, speedActual, TRUE);
+	pidSetDesired(&pidSpeed[nvtGetAHRSID()], speedDesired);
+	pidSetDt(&pidSpeed[nvtGetAHRSID()],getUpdateDT());
+	pidOut = pidUpdate(&pidSpeed[nvtGetAHRSID()], speedActual, TRUE);
 	TRUNCATE_SINT16(speedOutput, pidOut);
 }
 #endif
 void controllerResetAllPID(void)
 {
-	pidReset(&pidRoll);
-	pidReset(&pidPitch);
-	pidReset(&pidYaw);
-	pidReset(&pidRollRate);
-	pidReset(&pidPitchRate);
-	pidReset(&pidYawRate);
+	pidReset(&pidRoll[nvtGetAHRSID()]);
+	pidReset(&pidPitch[nvtGetAHRSID()]);
+	pidReset(&pidYaw[nvtGetAHRSID()]);
+	pidReset(&pidRollRate[nvtGetAHRSID()]);
+	pidReset(&pidPitchRate[nvtGetAHRSID()]);
+	pidReset(&pidYawRate[nvtGetAHRSID()]);
 #ifdef ABROBOT
-  pidReset(&pidSpeed);
+  pidReset(&pidSpeed[nvtGetAHRSID()]);
 #endif
 }
 void controllerResetYawRatePID(void)
 {
-  pidReset(&pidYawRate);
+  pidReset(&pidYawRate[nvtGetAHRSID()]);
 }
 void controllerSetRollPID(float kp, float ki, float kd)
 {
 	if(kp>=0)
-		pidSetPID(&pidRoll, kp, pidRoll.ki, pidRoll.kd);
+		pidSetPID(&pidRoll[GetAHRSReport()], kp, pidRoll[GetAHRSReport()].ki, pidRoll[GetAHRSReport()].kd);
 	if(ki>=0)
-		pidSetPID(&pidRoll, pidRoll.kp, ki, pidRoll.kd);
+		pidSetPID(&pidRoll[GetAHRSReport()], pidRoll[GetAHRSReport()].kp, ki, pidRoll[GetAHRSReport()].kd);
 	if(kd>=0)
-		pidSetPID(&pidRoll, pidRoll.kp, pidRoll.ki, kd);
+		pidSetPID(&pidRoll[GetAHRSReport()], pidRoll[GetAHRSReport()].kp, pidRoll[GetAHRSReport()].ki, kd);
 }
 
 void controllerSetPitchPID(float kp, float ki, float kd)
 {
 	if(kp>=0)
-		pidSetPID(&pidPitch, kp, pidPitch.ki, pidPitch.kd);
+		pidSetPID(&pidPitch[GetAHRSReport()], kp, pidPitch[GetAHRSReport()].ki, pidPitch[GetAHRSReport()].kd);
 	if(ki>=0)
-		pidSetPID(&pidPitch, pidPitch.kp, ki, pidPitch.kd);
+		pidSetPID(&pidPitch[GetAHRSReport()], pidPitch[GetAHRSReport()].kp, ki, pidPitch[GetAHRSReport()].kd);
 	if(kd>=0)
-		pidSetPID(&pidPitch, pidPitch.kp, pidPitch.ki, kd);
+		pidSetPID(&pidPitch[GetAHRSReport()], pidPitch[GetAHRSReport()].kp, pidPitch[GetAHRSReport()].ki, kd);
 }
 void controllerSetYawPID(float kp, float ki, float kd)
 {
 	if(kp>=0)
-		pidSetPID(&pidYaw, kp, pidYaw.ki, pidYaw.kd);
+		pidSetPID(&pidYaw[GetAHRSReport()], kp, pidYaw[GetAHRSReport()].ki, pidYaw[GetAHRSReport()].kd);
 	if(ki>=0)
-		pidSetPID(&pidYaw, pidYaw.kp, ki, pidYaw.kd);
+		pidSetPID(&pidYaw[GetAHRSReport()], pidYaw[GetAHRSReport()].kp, ki, pidYaw[GetAHRSReport()].kd);
 	if(kd>=0)
-		pidSetPID(&pidYaw, pidYaw.kp, pidYaw.ki, kd);
+		pidSetPID(&pidYaw[GetAHRSReport()], pidYaw[GetAHRSReport()].kp, pidYaw[GetAHRSReport()].ki, kd);
 }
 void controllerSetRollRatePID(float kp, float ki, float kd)
 {
 	if(kp>=0)
-		pidSetPID(&pidRollRate, kp, pidRollRate.ki, pidRollRate.kd);
+		pidSetPID(&pidRollRate[GetAHRSReport()], kp, pidRollRate[GetAHRSReport()].ki, pidRollRate[GetAHRSReport()].kd);
 	if(ki>=0)
-		pidSetPID(&pidRollRate, pidRollRate.kp, ki, pidRollRate.kd);
+		pidSetPID(&pidRollRate[GetAHRSReport()], pidRollRate[GetAHRSReport()].kp, ki, pidRollRate[GetAHRSReport()].kd);
 	if(kd>=0)
-		pidSetPID(&pidRollRate, pidRollRate.kp, pidRollRate.ki, kd);
+		pidSetPID(&pidRollRate[GetAHRSReport()], pidRollRate[GetAHRSReport()].kp, pidRollRate[GetAHRSReport()].ki, kd);
 }
 void controllerSetPitchRatePID(float kp, float ki, float kd)
 {
 	if(kp>=0)
-		pidSetPID(&pidPitchRate, kp, pidPitchRate.ki, pidPitchRate.kd);
+		pidSetPID(&pidPitchRate[GetAHRSReport()], kp, pidPitchRate[GetAHRSReport()].ki, pidPitchRate[GetAHRSReport()].kd);
 	if(ki>=0)
-		pidSetPID(&pidPitchRate, pidPitchRate.kp, ki, pidPitchRate.kd);
+		pidSetPID(&pidPitchRate[GetAHRSReport()], pidPitchRate[GetAHRSReport()].kp, ki, pidPitchRate[GetAHRSReport()].kd);
 	if(kd>=0)
-		pidSetPID(&pidPitchRate, pidPitchRate.kp, pidPitchRate.ki, kd);
+		pidSetPID(&pidPitchRate[GetAHRSReport()], pidPitchRate[GetAHRSReport()].kp, pidPitchRate[GetAHRSReport()].ki, kd);
 }
 void controllerSetYawRatePID(float kp, float ki, float kd)
 {
 	if(kp>=0)
-		pidSetPID(&pidYawRate, kp, pidYawRate.ki, pidYawRate.kd);
+		pidSetPID(&pidYawRate[GetAHRSReport()], kp, pidYawRate[GetAHRSReport()].ki, pidYawRate[GetAHRSReport()].kd);
 	if(ki>=0)
-		pidSetPID(&pidYawRate, pidYawRate.kp, ki, pidYawRate.kd);
+		pidSetPID(&pidYawRate[GetAHRSReport()], pidYawRate[GetAHRSReport()].kp, ki, pidYawRate[GetAHRSReport()].kd);
 	if(kd>=0)
-		pidSetPID(&pidYawRate, pidYawRate.kp, pidYawRate.ki, kd);
+		pidSetPID(&pidYawRate[GetAHRSReport()], pidYawRate[GetAHRSReport()].kp, pidYawRate[GetAHRSReport()].ki, kd);
 }
 void controllerSetAltHoldPID(float kp, float ki, float kd)
 {
 	if(kp>=0)
-		pidSetPID(&pidAltHold, kp, pidAltHold.ki, pidAltHold.kd);
+		pidSetPID(&pidAltHold[GetAHRSReport()], kp, pidAltHold[GetAHRSReport()].ki, pidAltHold[GetAHRSReport()].kd);
 	if(ki>=0)
-		pidSetPID(&pidAltHold, pidAltHold.kp, ki, pidAltHold.kd);
+		pidSetPID(&pidAltHold[GetAHRSReport()], pidAltHold[GetAHRSReport()].kp, ki, pidAltHold[GetAHRSReport()].kd);
 	if(kd>=0)
-		pidSetPID(&pidAltHold, pidAltHold.kp, pidAltHold.ki, kd);
+		pidSetPID(&pidAltHold[GetAHRSReport()], pidAltHold[GetAHRSReport()].kp, pidAltHold[GetAHRSReport()].ki, kd);
 }
 #ifdef ABROBOT
 void controllerSetSpeedPID(float kp, float ki, float kd)
 {
 	if(kp>=0)
-		pidSetPID(&pidSpeed, kp, pidSpeed.ki, pidSpeed.kd);
+		pidSetPID(&pidSpeed[GetAHRSReport()], kp, pidSpeed[GetAHRSReport()].ki, pidSpeed[GetAHRSReport()].kd);
 	if(ki>=0)
-		pidSetPID(&pidSpeed, pidSpeed.kp, ki, pidSpeed.kd);
+		pidSetPID(&pidSpeed[GetAHRSReport()], pidSpeed[GetAHRSReport()].kp, ki, pidSpeed[GetAHRSReport()].kd);
 	if(kd>=0)
-		pidSetPID(&pidSpeed, pidSpeed.kp, pidSpeed.ki, kd);
+		pidSetPID(&pidSpeed[GetAHRSReport()], pidSpeed[GetAHRSReport()].kp, pidSpeed[GetAHRSReport()].ki, kd);
 }
 #endif
 #ifdef ABROBOT
@@ -315,52 +314,52 @@ void controllerGetActuatorOutput(int16_t* roll, int16_t* pitch, int16_t* yaw)
 #endif
 void GetRollPID(float* PID)
 {
-	PID[0] = pidRoll.kp;
-	PID[1] = pidRoll.ki;
-	PID[2] = pidRoll.kd;
+	PID[0] = pidRoll[GetAHRSReport()].kp;
+	PID[1] = pidRoll[GetAHRSReport()].ki;
+	PID[2] = pidRoll[GetAHRSReport()].kd;
 }
 void GetPitchPID(float* PID)
 {
-	PID[0] = pidPitch.kp;
-	PID[1] = pidPitch.ki;
-	PID[2] = pidPitch.kd;
+	PID[0] = pidPitch[GetAHRSReport()].kp;
+	PID[1] = pidPitch[GetAHRSReport()].ki;
+	PID[2] = pidPitch[GetAHRSReport()].kd;
 }
 void GetYawPID(float* PID)
 {
-	PID[0] = pidYaw.kp;
-	PID[1] = pidYaw.ki;
-	PID[2] = pidYaw.kd;
+	PID[0] = pidYaw[GetAHRSReport()].kp;
+	PID[1] = pidYaw[GetAHRSReport()].ki;
+	PID[2] = pidYaw[GetAHRSReport()].kd;
 }
 void GetRollRatePID(float* PID)
 {
-	PID[0] = pidRollRate.kp;
-	PID[1] = pidRollRate.ki;
-	PID[2] = pidRollRate.kd;
+	PID[0] = pidRollRate[GetAHRSReport()].kp;
+	PID[1] = pidRollRate[GetAHRSReport()].ki;
+	PID[2] = pidRollRate[GetAHRSReport()].kd;
 }
 void GetPitchRatePID(float* PID)
 {
-	PID[0] = pidPitchRate.kp;
-	PID[1] = pidPitchRate.ki;
-	PID[2] = pidPitchRate.kd;
+	PID[0] = pidPitchRate[GetAHRSReport()].kp;
+	PID[1] = pidPitchRate[GetAHRSReport()].ki;
+	PID[2] = pidPitchRate[GetAHRSReport()].kd;
 }
 void GetYawRatePID(float* PID)
 {
-	PID[0] = pidYawRate.kp;
-	PID[1] = pidYawRate.ki;
-	PID[2] = pidYawRate.kd;
+	PID[0] = pidYawRate[GetAHRSReport()].kp;
+	PID[1] = pidYawRate[GetAHRSReport()].ki;
+	PID[2] = pidYawRate[GetAHRSReport()].kd;
 }
 void GetAltHoldPID(float* PID)
 {
-	PID[0] = pidAltHold.kp;
-	PID[1] = pidAltHold.ki;
-	PID[2] = pidAltHold.kd;
+	PID[0] = pidAltHold[GetAHRSReport()].kp;
+	PID[1] = pidAltHold[GetAHRSReport()].ki;
+	PID[2] = pidAltHold[GetAHRSReport()].kd;
 }
 #ifdef ABROBOT
 void GetSpeedPID(float* PID)
 {
-	PID[0] = pidSpeed.kp;
-	PID[1] = pidSpeed.ki;
-	PID[2] = pidSpeed.kd;
+	PID[0] = pidSpeed[GetAHRSReport()].kp;
+	PID[1] = pidSpeed[GetAHRSReport()].ki;
+	PID[2] = pidSpeed[GetAHRSReport()].kd;
 }
 #endif
 uint32_t GetUnit32()
@@ -397,12 +396,12 @@ float GetPIDfloat()
 }
 PidObject* GetAltHoldPIDObj()
 {
-	return &pidAltHold;
+	return &pidAltHold[GetAHRSReport()];
 }
 #ifdef ABROBOT
 PidObject* GetSpeedPIDObj()
 {
-	return &pidSpeed;
+	return &pidSpeed[GetAHRSReport()];
 }
 #endif
 void SetPID()

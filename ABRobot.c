@@ -281,7 +281,8 @@ void setup()
 		Battery_Init();
 	TIMER_Init();
 	LED_Init();
-	stabilizerInit();
+  motorsInit();
+	
 #endif
 #ifdef ABROBOT
   ABRobotMotorInit();
@@ -290,11 +291,13 @@ void setup()
   nvtSetAHRSID(1);
   SetAHRSReport(1);
   MPU6050_set_addr(1);
+  stabilizerInit();
 	SensorsInit();
   nvtSetAHRSID(0);
   SetAHRSReport(0);
   MPU6050_set_addr(0);
 	SensorsInit();
+  stabilizerInit();
 	ChronographSet(ChronMain);
 }
 void CommandProcess()

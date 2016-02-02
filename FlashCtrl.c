@@ -452,8 +452,10 @@ bool GetFlashPID(float* PID_FIELD)
 	uint8_t PIDBase, i;
 	int16_t Valid;
 	bool FlashValid;
-
-	PIDBase=PID_BASE0;
+  if(GetAHRSReport()==0)
+    PIDBase=PID_BASE0;
+  else
+    PIDBase=PID_BASE1;
 	Valid = dw2i16(DATA_FLASH_Read(PIDBase++));
 	if(Valid==FIELD_VALID) {
 		for(i = 0; i< PID_FIELD_SIZE; i++) 
