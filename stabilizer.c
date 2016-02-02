@@ -738,16 +738,16 @@ void stabilizer()
 
 #ifdef ABROBOT
   if((GetSensorCalState()&(1<<GYRO))&& (motor_enable==1)) {
-    if(nvtGetAHRSID())
+    if(nvtGetAHRSID()==0)
       distributePower(true);
-    else
-      distributeTiltPower(true);
+    //else
+    //  distributeTiltPower(true);
   }
   else {
-    if(nvtGetAHRSID())
+    if(nvtGetAHRSID()==0)
       distributePower(false);
-    else
-      distributeTiltPower(false);
+    //else
+    //  distributeTiltPower(false);
   }
   /**if((GetFrameCount()%18)==0)
     //printf("Th,Roll,Pitch,Yaw, Speed:%d,%d,%d,%d, %d \n",Actutaor.actuatorThrust,Actutaor.actuatorRoll, Actutaor.actuatorPitch, -Actutaor.actuatorYaw, Actutaor.actuatorSpeed);
