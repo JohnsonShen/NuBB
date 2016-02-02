@@ -288,14 +288,14 @@ void setup()
   ABRobotMotorInit();
 #endif
 	nvtAHRSInit();
-  nvtSetAHRSID(1);
-  SetAHRSReport(1);
-  MPU6050_set_addr(1);
-  stabilizerInit();
-	SensorsInit();
   nvtSetAHRSID(0);
   SetAHRSReport(0);
   MPU6050_set_addr(0);
+  stabilizerInit();
+	SensorsInit();
+  nvtSetAHRSID(1);
+  SetAHRSReport(1);
+  MPU6050_set_addr(1);
 	SensorsInit();
   stabilizerInit();
 	ChronographSet(ChronMain);
