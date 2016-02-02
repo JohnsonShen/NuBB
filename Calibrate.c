@@ -33,7 +33,7 @@ void CalibrationFail()
 void AccCalibration()
 {
 	char direction;// = GetChar();
-	const char calibration_done = 'd';
+	//const char calibration_done = 'd';
 	char side = atoi(&direction);
 	signed char status;
 	direction = 'x';

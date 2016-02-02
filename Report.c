@@ -43,7 +43,26 @@ typedef struct {
 char report_mode = REPORT_AHRS_EULER;
 char report_format = REPORT_FORMAT_TEXT;
 char stream_mode = STREAM_PAUSE;
+char ReportAHRS = 0;
 
+void SetAHRSReport(char report)
+{
+  ReportAHRS = report;
+}
+char GetAHRSReport()
+{
+  return ReportAHRS;
+}
+void SetReportAHRS()
+{
+  char token0 = GetChar();
+	if(token0=='0') { //AHRSID:0
+    SetAHRSReport(0);
+  }
+  else if(token0=='1') { //AHRSID:1
+    SetAHRSReport(1);
+  }
+}
 void report_ASIC(uint8_t buf0,uint8_t buf1,uint8_t buf2,uint8_t buf3,uint8_t buf4,
 									uint8_t buf5,uint8_t buf6,uint8_t buf7,uint8_t buf8,uint8_t buf9)
 {

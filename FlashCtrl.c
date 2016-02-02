@@ -273,7 +273,11 @@ void UpdateFlashCal(int8_t sensorType, bool erase)
 	
 	FlashState =  GetFlashState();
 	if(sensorType&SENSOR_GYRO) {
-		CalBase=CAL_BASE_GYRO;
+    if(GetAHRSReport()==0)
+      CalBase=CAL_BASE_GYRO0;
+    else
+      CalBase=CAL_BASE_GYRO1;
+    
 		nvtGetGyroOffset(mean);
 		nvtGetGyroScale(scale);
 		if(erase) {
@@ -300,7 +304,10 @@ void UpdateFlashCal(int8_t sensorType, bool erase)
 }
 	}
 	if(sensorType&SENSOR_ACC) {
-		CalBase=CAL_BASE_ACC;
+    if(GetAHRSReport()==0)
+      CalBase=CAL_BASE_ACC0;
+    else
+      CalBase=CAL_BASE_ACC1;
 		nvtGetAccOffset(mean);
 		nvtGetAccScale(scale);
 		if(erase) {
@@ -327,7 +334,10 @@ void UpdateFlashCal(int8_t sensorType, bool erase)
 		}
 	}
 	if(sensorType&SENSOR_MAG) {
-		CalBase=CAL_BASE_MAG;
+    if(GetAHRSReport()==0)
+      CalBase=CAL_BASE_MAG0;
+    else
+      CalBase=CAL_BASE_MAG1;
 		nvtGetMagCalMatrix(matrix);
 		QualityFactor = nvtGetMagCalQFactor();
 		if(erase) {
@@ -360,7 +370,10 @@ bool GetFlashCal(int8_t sensorType, float* Cal)
 	bool FlashValid;
 
 	if(sensorType&SENSOR_GYRO) {
-		CalBase=CAL_BASE_GYRO;
+    if(GetAHRSReport()==0)
+      CalBase=CAL_BASE_GYRO0;
+    else
+      CalBase=CAL_BASE_GYRO1;
 		Valid = dw2i16(DATA_FLASH_Read(CalBase++));
 		if(Valid==FIELD_VALID) {
 			for(i = 0; i< GYRO_CAL_DATA_SIZE; i++) {
@@ -372,7 +385,10 @@ bool GetFlashCal(int8_t sensorType, float* Cal)
 			FlashValid = false;
 	}
 	else if(sensorType&SENSOR_ACC) {
-		CalBase=CAL_BASE_ACC;
+    if(GetAHRSReport()==0)
+      CalBase=CAL_BASE_ACC0;
+    else
+      CalBase=CAL_BASE_ACC1;
 		Valid = dw2i16(DATA_FLASH_Read(CalBase++));
 		if(Valid==FIELD_VALID) {
 			for(i = 0; i< (ACC_CAL_DATA_SIZE/* + FIELD_VALID_SIZE*/); i++) {
@@ -384,7 +400,10 @@ bool GetFlashCal(int8_t sensorType, float* Cal)
 			FlashValid = false;
 	}
 	else if(sensorType&SENSOR_MAG) {
-		CalBase=CAL_BASE_MAG;
+    if(GetAHRSReport()==0)
+      CalBase=CAL_BASE_MAG0;
+    else
+      CalBase=CAL_BASE_MAG1;
 		Valid = dw2i16(DATA_FLASH_Read(CalBase++));
 		if(Valid==FIELD_VALID) {
 			for(i = 0; i< (MAG_CAL_DATA_SIZE/* + FIELD_VALID_SIZE*/); i++) {
@@ -405,8 +424,10 @@ void UpdateFlashPID(bool erase)
 {
 	uint8_t PIDBase, i=0;	
 	float PID_FIELD[PID_FIELD_SIZE];
-	
-	PIDBase=PID_BASE;
+	if(GetAHRSReport()==0)
+    PIDBase=PID_BASE0;
+  else
+    PIDBase=PID_BASE1;
 	GetRollPID(&PID_FIELD[i]);i+=PID_SIZE;
 	GetPitchPID(&PID_FIELD[i]);i+=PID_SIZE;
 	GetYawPID(&PID_FIELD[i]);i+=PID_SIZE;
@@ -432,7 +453,7 @@ bool GetFlashPID(float* PID_FIELD)
 	int16_t Valid;
 	bool FlashValid;
 
-	PIDBase=PID_BASE;
+	PIDBase=PID_BASE0;
 	Valid = dw2i16(DATA_FLASH_Read(PIDBase++));
 	if(Valid==FIELD_VALID) {
 		for(i = 0; i< PID_FIELD_SIZE; i++) 

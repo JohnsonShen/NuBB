@@ -49,6 +49,7 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #include "motors.h"
 int freq=0;
 #endif
+#include "MPU6050.h"
 #define MAG_INTERVAL 4
 #define code_version 0x00000900	//code version: 0.090
 extern RF_DATA RxData;
@@ -60,7 +61,7 @@ extern uint8_t BatteryPercent,charge,asic_ready,ini_start;
 extern uint16_t RxChannel[RC_CHANS];
 extern uint16_t* rcValueSSV;
 uint8_t au8IR_CODE[4],notify=0,notify_buf[10],keyin=0,spin,spin_cnt,ss=0;
-char ReportAHRS = 0;
+
 void version_check(void)
 {
 		int32_t i32TimeOutCnt;
@@ -287,24 +288,14 @@ void setup()
 #endif
 	nvtAHRSInit();
   nvtSetAHRSID(1);
+  SetAHRSReport(1);
   MPU6050_set_addr(1);
 	SensorsInit();
   nvtSetAHRSID(0);
+  SetAHRSReport(0);
   MPU6050_set_addr(0);
 	SensorsInit();
 	ChronographSet(ChronMain);
-}
-void SetAHRS()
-{
-  char token0 = GetChar();
-	if(token0=='0') { //AHRSID:0
-    ReportAHRS = 0;
-    //nvtSetAHRSID(0);
-  }
-  else if(token0=='1') { //AHRSID:1
-    ReportAHRS = 1;
-    //nvtSetAHRSID(1);
-  }
 }
 void CommandProcess()
 {
@@ -418,7 +409,7 @@ void CommandProcess()
 					SetRemoteControl();
 				}
         else if (mode=='a') {// 'a'hrs
-					SetAHRS();
+					SetReportAHRS();
 				}
 #endif
 			}
@@ -632,11 +623,11 @@ void loop()
 		nvtUpdateAHRS(SENSOR_ACC|SENSOR_GYRO|SENSOR_HALL);
 
 	if((GetFrameCount()%40)==0) {
-    if(ReportAHRS==0)
+    if(GetAHRSReport()==0)
       report_sensors();
   }
   else if((GetFrameCount()%40)==1) {
-    if(ReportAHRS==1)
+    if(GetAHRSReport()==1)
       report_sensors();
   }
 	

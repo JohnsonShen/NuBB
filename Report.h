@@ -48,4 +48,7 @@ void report_ASIC(uint8_t buf0,uint8_t buf1,uint8_t buf2,uint8_t buf3,uint8_t buf
 void report_sensors(void);
 void report_status(void);
 void CheckVersion(void);
+void SetAHRSReport(char);
+char GetAHRSReport(void);
+void SetReportAHRS(void);
 #endif
