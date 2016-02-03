@@ -34567,20 +34567,12 @@ float getUpdateDT(void);
 volatile    uint8_t             IR_State = 0;       
 volatile    uint8_t             IR_LDC_Ready = 0;   
 volatile    uint8_t             IR_CTC_Ready = 0;   
-volatile    uint8_t             IR_CTC0 = 0;        
-volatile    uint8_t             IR_CTC1 = 0;        
-volatile    uint8_t             IR_DAC = 0;         
-volatile    uint8_t             IR_DAB = 0;         
-uint8_t             IR_CODE[4]  =   {0x00, 0x00, 0x00, 0x00};
+uint8_t             IR_CODE[13]  =   {0x00, 0x00, 0x00, 0x00};
 
 volatile    uint8_t             IR2_State = 0;       
 volatile    uint8_t             IR2_LDC_Ready = 0;   
 volatile    uint8_t             IR2_CTC_Ready = 0;   
-volatile    uint8_t             IR2_CTC0 = 0;        
-volatile    uint8_t             IR2_CTC1 = 0;        
-volatile    uint8_t             IR2_DAC = 0;         
-volatile    uint8_t             IR2_DAB = 0;         
-uint8_t             IR2_CODE[4]  =   {0x00, 0x00, 0x00, 0x00};
+uint8_t             IR2_CODE[13]  =   {0x00, 0x00, 0x00, 0x00};
 
 void IrDa_NEC_Rx(uint32_t u32Time)
 {
@@ -34610,11 +34602,11 @@ void IrDa_NEC_Rx(uint32_t u32Time)
     else if((IR_State >= 2 && IR_State < 10) && (IR_LDC_Ready == 1))
     {
         IR_State++;
-        IR_CTC0 = IR_CTC0 >> 1;
+        IR_CODE[0] = IR_CODE[0] >> 1;
         if((u32Time >= (1120 * (1 - 0.04))) && (u32Time <= (1120 * (1 + 0.04))))          
-            IR_CTC0 &= 0x7f;
+            IR_CODE[0] &= 0x7f;
         else if((u32Time >= (2236 * (1 - 0.04))) && (u32Time <= (2236 * (1 + 0.04)))) 
-            IR_CTC0 |= 0x80;
+            IR_CODE[0] |= 0x80;
         else
             IR_State = 0;
     }
@@ -34622,11 +34614,11 @@ void IrDa_NEC_Rx(uint32_t u32Time)
     else if((IR_State >= 10 && IR_State < 18) && (IR_LDC_Ready == 1))
     {
         IR_State++;
-        IR_CTC1 = IR_CTC1 >> 1;
+        IR_CODE[1] = IR_CODE[1] >> 1;
         if((u32Time >= (1120 * (1 - 0.04))) && (u32Time <= (1120 * (1 + 0.04))))          
-            IR_CTC1 &= 0x7f;
+            IR_CODE[1] &= 0x7f;
         else if((u32Time >= (2236 * (1 - 0.04))) && (u32Time <= (2236 * (1 + 0.04)))) 
-            IR_CTC1 |= 0x80;
+            IR_CODE[1] |= 0x80;
         else
             IR_State = 0;
     }
@@ -34634,38 +34626,141 @@ void IrDa_NEC_Rx(uint32_t u32Time)
     else if((IR_State >= 18 && IR_State < 26) && (IR_LDC_Ready == 1))
     {
         IR_State++;
-        IR_DAC = IR_DAC >> 1;
+        IR_CODE[2] = IR_CODE[2] >> 1;
         if((u32Time >= (1120 * (1 - 0.04))) && (u32Time <= (1120 * (1 + 0.04))))          
-            IR_DAC &= 0x7f;
+            IR_CODE[2] &= 0x7f;
         else if((u32Time >= (2236 * (1 - 0.04))) && (u32Time <= (2236 * (1 + 0.04))))     
-            IR_DAC |= 0x80;
+            IR_CODE[2] |= 0x80;
+        else
+            IR_State = 0;
+
+    }
+		else if((IR_State >= 26 && IR_State < 34) && (IR_LDC_Ready == 1))
+    {
+        IR_State++;
+        IR_CODE[3] = IR_CODE[3] >> 1;
+        if((u32Time >= (1120 * (1 - 0.04))) && (u32Time <= (1120 * (1 + 0.04))))          
+            IR_CODE[3] &= 0x7f;
+        else if((u32Time >= (2236 * (1 - 0.04))) && (u32Time <= (2236 * (1 + 0.04))))     
+            IR_CODE[3] |= 0x80;
+        else
+            IR_State = 0;
+
+    }
+		else if((IR_State >= 34 && IR_State < 42) && (IR_LDC_Ready == 1))
+    {
+        IR_State++;
+        IR_CODE[4] = IR_CODE[4] >> 1;
+        if((u32Time >= (1120 * (1 - 0.04))) && (u32Time <= (1120 * (1 + 0.04))))          
+            IR_CODE[4] &= 0x7f;
+        else if((u32Time >= (2236 * (1 - 0.04))) && (u32Time <= (2236 * (1 + 0.04))))     
+            IR_CODE[4] |= 0x80;
+        else
+            IR_State = 0;
+
+    }
+		else if((IR_State >= 42 && IR_State < 50) && (IR_LDC_Ready == 1))
+    {
+        IR_State++;
+        IR_CODE[5] = IR_CODE[5] >> 1;
+        if((u32Time >= (1120 * (1 - 0.04))) && (u32Time <= (1120 * (1 + 0.04))))          
+            IR_CODE[5] &= 0x7f;
+        else if((u32Time >= (2236 * (1 - 0.04))) && (u32Time <= (2236 * (1 + 0.04))))     
+            IR_CODE[5] |= 0x80;
+        else
+            IR_State = 0;
+
+    }
+		else if((IR_State >= 50 && IR_State < 58) && (IR_LDC_Ready == 1))
+    {
+        IR_State++;
+        IR_CODE[6] = IR_CODE[6] >> 1;
+        if((u32Time >= (1120 * (1 - 0.04))) && (u32Time <= (1120 * (1 + 0.04))))          
+            IR_CODE[6] &= 0x7f;
+        else if((u32Time >= (2236 * (1 - 0.04))) && (u32Time <= (2236 * (1 + 0.04))))     
+            IR_CODE[6] |= 0x80;
+        else
+            IR_State = 0;
+
+    }
+		else if((IR_State >= 58 && IR_State < 66) && (IR_LDC_Ready == 1))
+    {
+        IR_State++;
+        IR_CODE[7] = IR_CODE[7] >> 1;
+        if((u32Time >= (1120 * (1 - 0.04))) && (u32Time <= (1120 * (1 + 0.04))))          
+            IR_CODE[7] &= 0x7f;
+        else if((u32Time >= (2236 * (1 - 0.04))) && (u32Time <= (2236 * (1 + 0.04))))     
+            IR_CODE[7] |= 0x80;
+        else
+            IR_State = 0;
+
+    }
+		else if((IR_State >= 66 && IR_State < 74) && (IR_LDC_Ready == 1))
+    {
+        IR_State++;
+        IR_CODE[8] = IR_CODE[8] >> 1;
+        if((u32Time >= (1120 * (1 - 0.04))) && (u32Time <= (1120 * (1 + 0.04))))          
+            IR_CODE[8] &= 0x7f;
+        else if((u32Time >= (2236 * (1 - 0.04))) && (u32Time <= (2236 * (1 + 0.04))))     
+            IR_CODE[8] |= 0x80;
+        else
+            IR_State = 0;
+
+    }
+		else if((IR_State >= 74 && IR_State < 82) && (IR_LDC_Ready == 1))
+    {
+        IR_State++;
+        IR_CODE[9] = IR_CODE[9] >> 1;
+        if((u32Time >= (1120 * (1 - 0.04))) && (u32Time <= (1120 * (1 + 0.04))))          
+            IR_CODE[9] &= 0x7f;
+        else if((u32Time >= (2236 * (1 - 0.04))) && (u32Time <= (2236 * (1 + 0.04))))     
+            IR_CODE[9] |= 0x80;
+        else
+            IR_State = 0;
+
+    }
+		else if((IR_State >= 82 && IR_State < 90) && (IR_LDC_Ready == 1))
+    {
+        IR_State++;
+        IR_CODE[10] = IR_CODE[10] >> 1;
+        if((u32Time >= (1120 * (1 - 0.04))) && (u32Time <= (1120 * (1 + 0.04))))          
+            IR_CODE[10] &= 0x7f;
+        else if((u32Time >= (2236 * (1 - 0.04))) && (u32Time <= (2236 * (1 + 0.04))))     
+            IR_CODE[10] |= 0x80;
+        else
+            IR_State = 0;
+
+    }
+		else if((IR_State >= 90 && IR_State < 98) && (IR_LDC_Ready == 1))
+    {
+        IR_State++;
+        IR_CODE[11] = IR_CODE[11] >> 1;
+        if((u32Time >= (1120 * (1 - 0.04))) && (u32Time <= (1120 * (1 + 0.04))))          
+            IR_CODE[11] &= 0x7f;
+        else if((u32Time >= (2236 * (1 - 0.04))) && (u32Time <= (2236 * (1 + 0.04))))     
+            IR_CODE[11] |= 0x80;
         else
             IR_State = 0;
 
     }
     
-    else if((IR_State >= 26 && IR_State < 34) && (IR_LDC_Ready == 1))
+    else if((IR_State >= 98 && IR_State < 106) && (IR_LDC_Ready == 1))
     {
         IR_State++;
-        IR_DAB = IR_DAB >> 1;
+        IR_CODE[12] = IR_CODE[12] >> 1;
         if((u32Time >= (1120 * (1 - 0.04))) && (u32Time <= (1120 * (1 + 0.04))))      
-            IR_DAB &= 0x7f;
+            IR_CODE[12] &= 0x7f;
         else if((u32Time >= (2236 * (1 - 0.04))) && (u32Time <= (2236 * (1 + 0.04))))     
-            IR_DAB |= 0x80;
+            IR_CODE[12] |= 0x80;
         else
             IR_State = 0;
 
-        if(IR_State == 34)
+        if(IR_State == 106)
         {
-            if(((IR_DAC ^ IR_DAB) == 0xff) && (IR_CTC0 == 0x21) && (IR_CTC1 == 0xDF))
-            {
-                IR_LDC_Ready = 0;   
-                IR_CODE[0] = IR_CTC0;
-                IR_CODE[1] = IR_CTC1;
-                IR_CODE[2] = IR_DAC;
-                IR_CODE[3] = IR_DAB;
-                printf("CTC0=%02x, CTC1=%02x, DAC=%02x, DAB=%02x\n", IR_CTC0, IR_CTC1, IR_DAC, IR_DAB);
-            }
+            IR_LDC_Ready = 0;   
+
+
+
             IR_State = 0;
         }
     }
@@ -34698,11 +34793,11 @@ void IrDa_NEC_Rx2(uint32_t u32Time)
     else if((IR2_State >= 2 && IR2_State < 10) && (IR2_LDC_Ready == 1))
     {
         IR2_State++;
-        IR2_CTC0 = IR2_CTC0 >> 1;
+        IR2_CODE[0] = IR2_CODE[0] >> 1;
         if((u32Time >= (1120 * (1 - 0.04))) && (u32Time <= (1120 * (1 + 0.04))))          
-            IR2_CTC0 &= 0x7f;
+            IR2_CODE[0] &= 0x7f;
         else if((u32Time >= (2236 * (1 - 0.04))) && (u32Time <= (2236 * (1 + 0.04)))) 
-            IR2_CTC0 |= 0x80;
+            IR2_CODE[0] |= 0x80;
         else
             IR2_State = 0;
     }
@@ -34710,11 +34805,11 @@ void IrDa_NEC_Rx2(uint32_t u32Time)
     else if((IR2_State >= 10 && IR2_State < 18) && (IR2_LDC_Ready == 1))
     {
         IR2_State++;
-        IR2_CTC1 = IR2_CTC1 >> 1;
+        IR2_CODE[1] = IR2_CODE[1] >> 1;
         if((u32Time >= (1120 * (1 - 0.04))) && (u32Time <= (1120 * (1 + 0.04))))          
-            IR2_CTC1 &= 0x7f;
+            IR2_CODE[1] &= 0x7f;
         else if((u32Time >= (2236 * (1 - 0.04))) && (u32Time <= (2236 * (1 + 0.04)))) 
-            IR2_CTC1 |= 0x80;
+            IR2_CODE[1] |= 0x80;
         else
             IR2_State = 0;
     }
@@ -34722,38 +34817,141 @@ void IrDa_NEC_Rx2(uint32_t u32Time)
     else if((IR2_State >= 18 && IR2_State < 26) && (IR2_LDC_Ready == 1))
     {
         IR2_State++;
-        IR2_DAC = IR2_DAC >> 1;
+        IR2_CODE[2] = IR2_CODE[2] >> 1;
         if((u32Time >= (1120 * (1 - 0.04))) && (u32Time <= (1120 * (1 + 0.04))))          
-            IR2_DAC &= 0x7f;
+            IR2_CODE[2] &= 0x7f;
         else if((u32Time >= (2236 * (1 - 0.04))) && (u32Time <= (2236 * (1 + 0.04))))     
-            IR2_DAC |= 0x80;
+            IR2_CODE[2] |= 0x80;
+        else
+            IR2_State = 0;
+
+    }
+		else if((IR2_State >= 26 && IR2_State < 34) && (IR2_LDC_Ready == 1))
+    {
+        IR2_State++;
+        IR2_CODE[3] = IR2_CODE[3] >> 1;
+        if((u32Time >= (1120 * (1 - 0.04))) && (u32Time <= (1120 * (1 + 0.04))))          
+            IR2_CODE[3] &= 0x7f;
+        else if((u32Time >= (2236 * (1 - 0.04))) && (u32Time <= (2236 * (1 + 0.04))))     
+            IR2_CODE[3] |= 0x80;
+        else
+            IR2_State = 0;
+
+    }
+		else if((IR2_State >= 34 && IR2_State < 42) && (IR2_LDC_Ready == 1))
+    {
+        IR2_State++;
+        IR2_CODE[4] = IR2_CODE[4] >> 1;
+        if((u32Time >= (1120 * (1 - 0.04))) && (u32Time <= (1120 * (1 + 0.04))))          
+            IR2_CODE[4] &= 0x7f;
+        else if((u32Time >= (2236 * (1 - 0.04))) && (u32Time <= (2236 * (1 + 0.04))))     
+            IR2_CODE[4] |= 0x80;
+        else
+            IR2_State = 0;
+
+    }
+		else if((IR2_State >= 42 && IR2_State < 50) && (IR2_LDC_Ready == 1))
+    {
+        IR2_State++;
+        IR2_CODE[5] = IR2_CODE[5] >> 1;
+        if((u32Time >= (1120 * (1 - 0.04))) && (u32Time <= (1120 * (1 + 0.04))))          
+            IR2_CODE[5] &= 0x7f;
+        else if((u32Time >= (2236 * (1 - 0.04))) && (u32Time <= (2236 * (1 + 0.04))))     
+            IR2_CODE[5] |= 0x80;
+        else
+            IR2_State = 0;
+
+    }
+		else if((IR2_State >= 50 && IR2_State < 58) && (IR2_LDC_Ready == 1))
+    {
+        IR2_State++;
+        IR2_CODE[6] = IR2_CODE[6] >> 1;
+        if((u32Time >= (1120 * (1 - 0.04))) && (u32Time <= (1120 * (1 + 0.04))))          
+            IR2_CODE[6] &= 0x7f;
+        else if((u32Time >= (2236 * (1 - 0.04))) && (u32Time <= (2236 * (1 + 0.04))))     
+            IR2_CODE[6] |= 0x80;
+        else
+            IR2_State = 0;
+
+    }
+		else if((IR2_State >= 58 && IR2_State < 66) && (IR2_LDC_Ready == 1))
+    {
+        IR2_State++;
+        IR2_CODE[7] = IR2_CODE[7] >> 1;
+        if((u32Time >= (1120 * (1 - 0.04))) && (u32Time <= (1120 * (1 + 0.04))))          
+            IR2_CODE[7] &= 0x7f;
+        else if((u32Time >= (2236 * (1 - 0.04))) && (u32Time <= (2236 * (1 + 0.04))))     
+            IR2_CODE[7] |= 0x80;
+        else
+            IR2_State = 0;
+
+    }
+		else if((IR2_State >= 66 && IR2_State < 74) && (IR2_LDC_Ready == 1))
+    {
+        IR2_State++;
+        IR2_CODE[8] = IR2_CODE[8] >> 1;
+        if((u32Time >= (1120 * (1 - 0.04))) && (u32Time <= (1120 * (1 + 0.04))))          
+            IR2_CODE[8] &= 0x7f;
+        else if((u32Time >= (2236 * (1 - 0.04))) && (u32Time <= (2236 * (1 + 0.04))))     
+            IR2_CODE[8] |= 0x80;
+        else
+            IR2_State = 0;
+
+    }
+		else if((IR2_State >= 74 && IR2_State < 82) && (IR2_LDC_Ready == 1))
+    {
+        IR2_State++;
+        IR2_CODE[9] = IR2_CODE[9] >> 1;
+        if((u32Time >= (1120 * (1 - 0.04))) && (u32Time <= (1120 * (1 + 0.04))))          
+            IR2_CODE[9] &= 0x7f;
+        else if((u32Time >= (2236 * (1 - 0.04))) && (u32Time <= (2236 * (1 + 0.04))))     
+            IR2_CODE[9] |= 0x80;
+        else
+            IR2_State = 0;
+
+    }
+		else if((IR2_State >= 82 && IR2_State < 90) && (IR2_LDC_Ready == 1))
+    {
+        IR2_State++;
+        IR2_CODE[10] = IR2_CODE[10] >> 1;
+        if((u32Time >= (1120 * (1 - 0.04))) && (u32Time <= (1120 * (1 + 0.04))))          
+            IR2_CODE[10] &= 0x7f;
+        else if((u32Time >= (2236 * (1 - 0.04))) && (u32Time <= (2236 * (1 + 0.04))))     
+            IR2_CODE[10] |= 0x80;
+        else
+            IR2_State = 0;
+
+    }
+		else if((IR2_State >= 90 && IR2_State < 98) && (IR2_LDC_Ready == 1))
+    {
+        IR2_State++;
+        IR2_CODE[11] = IR2_CODE[11] >> 1;
+        if((u32Time >= (1120 * (1 - 0.04))) && (u32Time <= (1120 * (1 + 0.04))))          
+            IR2_CODE[11] &= 0x7f;
+        else if((u32Time >= (2236 * (1 - 0.04))) && (u32Time <= (2236 * (1 + 0.04))))     
+            IR2_CODE[11] |= 0x80;
         else
             IR2_State = 0;
 
     }
     
-    else if((IR2_State >= 26 && IR2_State < 34) && (IR2_LDC_Ready == 1))
+    else if((IR2_State >= 98 && IR2_State < 106) && (IR2_LDC_Ready == 1))
     {
         IR2_State++;
-        IR2_DAB = IR2_DAB >> 1;
+        IR2_CODE[12] = IR2_CODE[12] >> 1;
         if((u32Time >= (1120 * (1 - 0.04))) && (u32Time <= (1120 * (1 + 0.04))))      
-            IR2_DAB &= 0x7f;
+            IR2_CODE[12] &= 0x7f;
         else if((u32Time >= (2236 * (1 - 0.04))) && (u32Time <= (2236 * (1 + 0.04))))     
-            IR2_DAB |= 0x80;
+            IR2_CODE[12] |= 0x80;
         else
             IR2_State = 0;
 
-        if(IR2_State == 34)
+        if(IR2_State == 106)
         {
-            if(((IR2_DAC ^ IR2_DAB) == 0xff) && (IR2_CTC0 == 0x21) && (IR2_CTC1 == 0xDF))
-            {
-                IR2_LDC_Ready = 0;   
-                IR2_CODE[0] = IR2_CTC0;
-                IR2_CODE[1] = IR2_CTC1;
-                IR2_CODE[2] = IR2_DAC;
-                IR2_CODE[3] = IR2_DAB;
-                printf("CTC0=%02x, CTC1=%02x, DAC=%02x, DAB=%02x\n", IR2_CTC0, IR2_CTC1, IR2_DAC, IR2_DAB);
-            }
+            IR2_LDC_Ready = 0;   
+
+
+
             IR2_State = 0;
         }
     }
@@ -34776,7 +34974,7 @@ void PWM1P1_IRQHandler(void)
 		}
 }
 
-#line 264 "IR.c"
+#line 462 "IR.c"
 
 
 

@@ -33396,7 +33396,7 @@ static void stackDump(uint32_t stack[])
     printf("pc  = 0x%x\n", stack[pc]);
     printf("psr = 0x%x\n", stack[psr]);
 }
-
+uint8_t x[1024],i=0;
 
 
 
@@ -33636,7 +33636,9 @@ int Serial_available(void)
 }
 char Serial_read(void)
 {
-	return (((UART_T *) (((0x40000000UL) + 0x00040000) + 0x30000))->DAT);
+	x[i]=((UART_T *) (((0x40000000UL) + 0x00040000) + 0x30000))->DAT;
+	i++;
+	return (x[i-1]);
 }
 void Serial_write(char* id, int num)
 {

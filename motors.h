@@ -25,6 +25,8 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #define IO_MR_CRTL1        PE,BIT13
 #define IO_ML_CRTL0        PD,BIT7
 #define IO_ML_CRTL1        PF,BIT2
+#define IO_MC_CRTL0        PC,BIT5
+#define IO_MC_CRTL1        PC,BIT7
 #endif
 // Motors IDs define
 #define MOTOR_M1  0
@@ -48,6 +50,7 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #define BREAK 3
 #define R     0
 #define L     1
+#define C     2
 #define M     2
 typedef struct {
   uint8_t ctrl;

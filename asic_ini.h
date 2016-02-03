@@ -32,5 +32,6 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 
 void asic_init(void);
 uint8_t asic_power(uint8_t key);
+uint8_t factory_reset(uint8_t status);
 #endif /* ASIC_INI_H_ */
 

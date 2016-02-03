@@ -261,10 +261,16 @@ void motorsSetRatio(int id, uint16_t u16PulseWidth)
 #ifdef ABROBOT
 void ABRobotMotorInit()
 {
+	GPIO_SetMode(PB,BIT5, GPIO_MODE_OUTPUT);
+	PB5=0;
+	GPIO_SetMode(PD,BIT15, GPIO_MODE_INPUT);
+	GPIO_SetMode(PD,BIT8, GPIO_MODE_INPUT);
   GPIO_SetMode(IO_MR_CRTL0,GPIO_MODE_OUTPUT);
   GPIO_SetMode(IO_MR_CRTL1,GPIO_MODE_OUTPUT);
   GPIO_SetMode(IO_ML_CRTL0,GPIO_MODE_OUTPUT);
   GPIO_SetMode(IO_ML_CRTL1,GPIO_MODE_OUTPUT);
+  GPIO_SetMode(IO_MC_CRTL0,GPIO_MODE_OUTPUT);
+  GPIO_SetMode(IO_MC_CRTL1,GPIO_MODE_OUTPUT);
   MotorCal.MotorOffset[0] = 0.0f;
   MotorCal.MotorOffset[1] = 0.0f;
   MotorCal.MotorScale[0] = 1.0f;

@@ -53,7 +53,7 @@ static void stackDump(uint32_t stack[])
     printf("pc  = 0x%x\n", stack[pc]);
     printf("psr = 0x%x\n", stack[psr]);
 }
-
+uint8_t x[1024],i=0;
 /**
  * @brief       Hard fault handler
  * @param[in]   stack pointer points to the dumped registers in SRAM
@@ -630,7 +630,9 @@ int Serial_available(void)
 }
 char Serial_read(void)
 {
-	return (DEBUG_PORT->DAT);
+	x[i]=DEBUG_PORT->DAT;
+	i++;
+	return (x[i-1]);
 }
 void Serial_write(char* id, int num)
 {

@@ -60,6 +60,7 @@ extern int16_t speed[2];
 extern uint8_t BatteryPercent,charge,asic_ready,ini_start;
 extern uint16_t RxChannel[RC_CHANS];
 extern uint16_t* rcValueSSV;
+extern uint16_t  camera;
 uint8_t au8IR_CODE[4],notify=0,notify_buf[10],keyin=0,spin,spin_cnt,ss=0;
 
 void version_check(void)
@@ -115,6 +116,7 @@ void GPD_IRQHandler(void)
     {
 				int key_cnt=0;
 				uint8_t motor_temp;
+				__disable_irq();
 				GPIO_CLR_INT_FLAG(PD, BIT2);
 				motor_temp=motor_enable;
 				if (PD10==1)
@@ -122,12 +124,13 @@ void GPD_IRQHandler(void)
 				while (PD2==0)
 				{
 						motor_enable=0;
+						PB5=0;
 						TIMER_Delay(TIMER0,100);
 						key_cnt++;
 						if ((key_cnt/3570)%2==0)
-								PA->DOUT = 0x8048;	//turn on red led
+								PA->DOUT = 0x8048|(PA->DOUT&BIT12);	//turn on red led
 						else
-								PA->DOUT = 0;
+								PA->DOUT = 0|(PA->DOUT&BIT12);
 						if(key_cnt>45000)
 								PD10=1;
 						if(key_cnt>49000)
@@ -139,17 +142,19 @@ void GPD_IRQHandler(void)
                 LED1_R=0;
                 LED1_G=0;
                 LED1_B=0;
-								PA->DOUT = 0;
+								PA->DOUT = 0|(PA->DOUT&BIT12);
 								break;						
 						}
 				}
 				if (PD10==0)
 				{
-						PA->DOUT = 0x8048;						
+						PA->DOUT = 0x8048|(PA->DOUT&BIT12);						
 						TIMER_Delay(TIMER0,100000);
-						PA->DOUT = 0;	
+						PA->DOUT = 0|(PA->DOUT&BIT12);	
 						motor_enable=motor_temp;
+						PB5=motor_temp;
     }
+				__enable_irq();
     }
 		else
     {
@@ -262,6 +267,10 @@ void setup()
 	setup_system_tick(SYSTEM_TICK_FREQ);
 	GPIO_SetMode(PD,BIT6, GPIO_MODE_OUTPUT);
 	PD6=1;
+	GPIO_SetMode(PF,BIT3, GPIO_MODE_OUTPUT);
+	PF3=0;
+	GPIO_SetMode(PE,BIT7, GPIO_MODE_OUTPUT);
+	PE7=1;
 	setupUART();
 //	GetChar();
 	setupRTC();
@@ -456,9 +465,15 @@ void CommandProcess()
 						}
 						else if((buf[0] == 0x05)&&(buf[1] == 00)){								
 								if ((buf[2]==1)&&(PB14==1))
+								{
 										motor_enable=1;
+										PB5=1;	//enable motor power
+								}
 								else if ((buf[2]==0)&&(PB14==1))
+								{
 										motor_enable=0;
+										PB5=0;
+								}
 						}
 						else if((buf[0] == 0x06)&&(buf[1] == 00)){								
 								RTC_SetDate((2000+buf[2]), buf[3], buf[4], buf[5]);

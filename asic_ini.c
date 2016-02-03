@@ -41,8 +41,8 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #include "asic_ini.h"
 #include "Def.h"
 #include "Timer_Ctrl.h"
-extern uint32_t LED1_R, LED1_G, LED1_B, Blink,brea;
-uint32_t ini_Tick,cur_Tick;
+extern uint32_t LED1_R, LED1_G, LED1_B, Blink,brea,LED2_R, LED2_G, LED2_B, Blink2,brea2;
+uint32_t ini_Tick=0,cur_Tick;
 uint8_t ini_start=0,asic_ready=1;
 
 void asic_init(void)
@@ -70,11 +70,16 @@ uint8_t asic_power(uint8_t key)
 	{
 			ini_Tick=getTickCount();
 			cur_Tick=ini_Tick;
-			LED1_R=100;
-			LED1_G=0;
-			LED1_B=0;
+			LED1_R=0;
+			LED1_G=100;
+			LED1_B=100;
 			Blink=10;
-			brea=0;
+			brea=1;
+			LED2_R=0;
+			LED2_G=100;
+			LED2_B=100;
+			Blink2=10;
+			brea2=1;
 			PD10=0;
 			ini_start=1;
 	}
@@ -82,43 +87,16 @@ uint8_t asic_power(uint8_t key)
 	{
 			if (getTickCount()<ini_Tick)
 					ini_Tick=0;
-			if (getTickCount()>(cur_Tick+300))
-			{
-					uint32_t LEDM;
-					cur_Tick=getTickCount();
-					LEDM=(cur_Tick-ini_Tick)/300;
-					brea=0;
-					if ((LEDM%3)==0)
-					{
-						LED1_R=100;
-						LED1_B=0;	
-					}
-					else if ((LEDM%3)==1)
-					{
-						LED1_R=0;
-						LED1_G=100;		
-					}
-					else if ((LEDM%3)==2)
-					{
-						LED1_G=0;	
-						LED1_B=100;
-					}
-			}
-			if (((cur_Tick-ini_Tick)>600000)&&(ini_start==1)&&(asic_ready==0))
+			if (((getTickCount()-ini_Tick)>600000)&&(ini_start==1)&&(asic_ready==0))
 			{
 					PD10=1;
 					TIMER_Delay(TIMER0,500);
 					ini_Tick=getTickCount();
 					cur_Tick=ini_Tick;
-					LED1_R=100;
-					LED1_G=0;
-					LED1_B=0;
-					Blink=10;
-					brea=0;
 					PD10=0;
 					ini_start=2;
 			}
-			else if (((cur_Tick-ini_Tick)>600000)&&(ini_start==2)&&(asic_ready==0))
+			else if (((getTickCount()-ini_Tick)>600000)&&(ini_start==2)&&(asic_ready==0))
 			{
 					PD10=1;
 					ini_start=0;
@@ -126,4 +104,54 @@ uint8_t asic_power(uint8_t key)
 			}
 	}
 	return key;
+}
+
+uint8_t factory_reset(uint8_t status)
+{
+	if ((status==1)&&(ini_Tick==0))
+	{
+			ini_Tick=getTickCount();
+			cur_Tick=ini_Tick;
+			LED1_R=100;
+			LED1_G=0;
+			LED1_B=0;
+			Blink=10;
+			brea=0;
+			LED2_R=100;
+			LED2_G=0;
+			LED2_B=0;
+			Blink2=10;
+			brea2=0;
+			ini_start=1;
+	}
+	else if((status==1)&&(getTickCount()>=5000))
+	{
+			if (getTickCount()>(cur_Tick+300))
+			{
+					uint32_t LEDM;
+					cur_Tick=getTickCount();
+					LEDM=(cur_Tick-ini_Tick)/300;
+					if ((LEDM%3)==0)
+					{
+						LED1_R=100;
+						LED1_B=0;	
+						LED2_R=100;
+						LED2_B=0;	
+					}
+					else if ((LEDM%3)==1)
+					{
+						LED1_R=0;
+						LED1_G=100;		
+						LED2_R=0;
+						LED2_G=100;	
+					}
+					else if ((LEDM%3)==2)
+					{
+						LED1_G=0;	
+						LED1_B=100;
+						LED2_G=0;	
+						LED2_B=100;
+					}
+			}
+			}
 }

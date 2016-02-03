@@ -62,6 +62,7 @@ static bool magMode = false;
 static bool headFreeMode = false;
 static bool wspeedMode = false;
 int16_t  motor_enable=0;
+uint16_t  camera=1512;
 ACTUATOR_T Actuator;
 
 uint32_t motorPowerM[MOTOR_NUMBER];

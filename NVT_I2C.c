@@ -660,7 +660,7 @@ uint8_t NVT_WriteByteContinue_addr8(uint8_t address,uint8_t* data, uint8_t len)
 			cnt++;
 			if (cnt>65535)
 			{
-#if 1
+#if 0
 						ErrorFlag=1;
 						return ErrorFlag;
 #else
@@ -702,7 +702,7 @@ uint8_t NVT_ReadByteContinue_addr8(uint8_t address,uint8_t* data, uint8_t len, u
 			cnt++;
 			if (cnt>65535)
 			{
-#if 1
+#if 0
                                                 ErrorFlag=1;
 						return ErrorFlag;
 #else

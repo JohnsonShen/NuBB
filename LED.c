@@ -46,15 +46,15 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 //#define IO_STATE_ARM        E_GPB, 8
 //#endif  
 static char ledState = 0;
-uint32_t LED1_R, LED1_G, LED1_B, Blink,brea=0,brea_cnt=0,LED_cnt=0;
-extern uint32_t BAT_LED_R, BAT_LED_G, BAT_LED_B, BAT_Blink, BAT_LED_EN;
+uint32_t LED1_R, LED1_G, LED1_B, LED2_R, LED2_G, LED2_B, Blink, Blink2,brea=0,brea2=0,brea_cnt=0,LED_cnt=0;
+extern uint32_t BAT_LED_R, BAT_LED_G, BAT_LED_B, BAT_Blink, BAT_Brea, BAT_LED_EN;
 extern uint32_t COM_LED_R, COM_LED_G, COM_LED_B, COM_Blink,COM_LED_EN;
-extern uint8_t ini_start;
+extern uint8_t ini_start,low_bat;
 void TMR1_IRQHandler(void)
 {
     if(TIMER_GetIntFlag(TIMER1) == 1)
     {
-        uint32_t LED_duty,RLED,BLED,GLED,LED_brea;
+        uint32_t LED_duty,RLED,BLED,GLED,RLED2,BLED2,GLED2,LED_brea,LED2_brea;
         /* Clear Timer1 time-out interrupt flag */
         TIMER_ClearIntFlag(TIMER1);
 				LED_cnt++;
@@ -66,13 +66,29 @@ void TMR1_IRQHandler(void)
 				else
 						LED_brea=0;
 				LED_brea=LED_brea*LED_brea/100;
+				if (brea2==1)
+					LED2_brea=LED_brea;
+				else
+					LED2_brea=0;
 				RLED=((int32_t)(LED1_R-LED_duty-LED_brea)>0)?1:0;
 				BLED=((int32_t)(LED1_B-LED_duty-LED_brea)>0)?1:0;
-				GLED=((int32_t)(LED1_G-LED_duty-LED_brea)>0)?1:0;				
-				if (LED_cnt<(Blink*1000))
-						PA->DOUT = (RLED<<3)|(RLED<<6)|(RLED<<15)|(GLED<<2)|(GLED<<5)|(GLED<<14)|(BLED<<1)|(BLED<<4)|(BLED<<13);
-				else 
-						PA->DOUT = 0;
+				GLED=((int32_t)(LED1_G-LED_duty-LED_brea)>0)?1:0;	
+				RLED2=((int32_t)(LED2_R-LED_duty-LED2_brea)>0)?1:0;
+				BLED2=((int32_t)(LED2_B-LED_duty-LED2_brea)>0)?1:0;
+				GLED2=((int32_t)(LED2_G-LED_duty-LED2_brea)>0)?1:0;					
+				if (LED_cnt>=(Blink*1000))
+				{
+						RLED=0;
+						BLED=0;
+						GLED=0;
+				}
+				if (LED_cnt>=(Blink2*1000))
+				{
+						RLED2=0;
+						BLED2=0;
+						GLED2=0;
+				}
+				PA->DOUT = (RLED2<<3)|(RLED2<<6)|(RLED<<15)|(GLED2<<2)|(GLED2<<5)|(GLED<<14)|(BLED2<<1)|(BLED2<<4)|(BLED<<13)|(PA->DOUT&BIT12);
 				if (LED_cnt==10000)
 				{
 						LED_cnt=0;
@@ -93,7 +109,7 @@ char GetLedState()
 void LED_Init(void)
 {
 		GPIO_SetMode(PA,(BIT1|BIT2|BIT3|BIT4|BIT5|BIT6|BIT13|BIT14|BIT15),GPIO_MODE_OUTPUT);
-		PA->DOUT = 0;
+		PA->DOUT = 0|(PA->DOUT&BIT12);
 		/* Start Time1 counting */
 		TIMER_Start(TIMER1);		
 //#ifdef M451
@@ -144,7 +160,23 @@ void UpdateLED()
 				LED1_G=BAT_LED_G;
 				LED1_B=BAT_LED_B;
 				Blink=BAT_Blink;
-				brea=1;
+				brea=BAT_Brea;
+				if(low_bat==1)
+				{
+						LED2_R=100;
+						LED2_G=0;
+						LED2_B=0;
+						Blink2=2;
+						brea2=0;
+				}
+				else
+				{
+						LED2_R=0;
+						LED2_G=0;
+						LED2_B=0;
+						Blink2=0;
+						brea2=0;
+				}
 		}
 		else if ((COM_LED_EN==0)&&(BAT_LED_EN==0)&&(ini_start==0))
 		{
@@ -153,6 +185,11 @@ void UpdateLED()
 				LED1_B=0;
 				Blink=0;
 				brea=0;
+				LED2_R=0;
+				LED2_G=0;
+				LED2_B=0;
+				Blink2=0;
+				brea2=0;
 		}
 
 }
