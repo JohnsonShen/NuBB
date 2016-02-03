@@ -141,7 +141,8 @@ void commanderGetRPY()
 	rc_yaw = (rcData[YAW_CH] - RC_YAW_MID);
 	rc_aux1 = rcData[AUX1_CH];
 #ifdef ABROBOT
-
+  //if((rc_pitch==0)&&(rc_roll==0)&&(rc_aux1==128))
+  //  controllerResetAllPID();
 #ifdef  DEGREE
     if(rc_aux1==255)
       rc_yaw = 0;
@@ -156,7 +157,7 @@ void commanderGetRPY()
 #else
 #ifdef WSPEED_DEGREE
     if(rc_roll) {
-      rc_yaw = rc_roll;
+      rc_yaw = rc_roll*5;
       wspeedMode = true;
     }
     else {
@@ -357,8 +358,7 @@ void commanderGetThrust()
 #ifdef ABROBOT
   Actuator.actuatorThrust = (rcData[PITCH_CH] - RC_PITCH_MID);
   speedDesired = Actuator.actuatorThrust/6;
-  if(speedDesired==0)
-    controllerResetAllPID();
+  
 #else
 	if(checkArm()) {
 		if(rc_thrust<arm_min_thr) {
@@ -799,6 +799,7 @@ void stabilizer()
     //  distributeTiltPower(true);
   }
   else {
+    controllerResetAllPID();
     if(nvtGetAHRSID()==0)
       distributePower(false);
     //else
