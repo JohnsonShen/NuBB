@@ -311,11 +311,14 @@ void CommandProcess()
 	}
 #ifdef DEGREE
 #else
+#ifdef WSPEED_DEGREE
+#else
 	if ((spin==0)&&(spin_cnt==0))
 	{
 			rcValueSSV[AUX1_CH] 	= 128;
 	}
   spin_cnt--;
+#endif
 #endif
 	// Read incoming control messages
 	if (Serial_available() >= 2)

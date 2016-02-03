@@ -60,6 +60,7 @@ static float headHold     = 0.0f;
 static float headFreeHold = 0.0f;
 static bool magMode = false;
 static bool headFreeMode = false;
+static bool wspeedMode = false;
 int16_t  motor_enable=0;
 ACTUATOR_T Actuator;
 
@@ -132,7 +133,6 @@ void ClearFlip()
 void commanderGetRPY()
 {
 	int16_t rcData[RC_CHANS], rc_roll, rc_pitch, rc_yaw, rc_aux1;
-  float YawSpeedFactor;
   static int16_t yaw_last;
   
 	getRC(rcData);
@@ -140,10 +140,7 @@ void commanderGetRPY()
 	rc_pitch = (rcData[PITCH_CH] - RC_PITCH_MID);
 	rc_yaw = (rcData[YAW_CH] - RC_YAW_MID);
 	rc_aux1 = rcData[AUX1_CH];
-  YawSpeedFactor = 1.0f;//GetFactorFromVelocity();
 #ifdef ABROBOT
-  //rc_roll = -rc_roll;
-  rc_yaw = rc_roll;
 
 #ifdef  DEGREE
     if(rc_aux1==255)
@@ -153,8 +150,22 @@ void commanderGetRPY()
 
 #else
 #ifdef WSPEED
+    rc_yaw = rc_roll;
   //if((GetFrameCount()%500)==0)
   //    printf("rc_yaw,rcData[YAW_CH],:%d %d\n",rc_yaw, rcData[YAW_CH]);
+#else
+#ifdef WSPEED_DEGREE
+    if(rc_roll) {
+      rc_yaw = rc_roll;
+      wspeedMode = true;
+    }
+    else {
+      if(rc_aux1==255)
+        rc_yaw = 0;
+      else
+        rc_yaw = -(rc_aux1 - 128)*15;
+      wspeedMode = false;
+    }
 #else
   if(rc_aux1==128)
     rc_yaw = 0;
@@ -162,6 +173,7 @@ void commanderGetRPY()
     rc_yaw = YAW_SPEED*YawSpeedFactor;
   else
     rc_yaw = -YAW_SPEED*YawSpeedFactor;
+#endif
 #endif
 #endif
 
@@ -266,11 +278,44 @@ void commanderGetRPY()
 	}
   //if((GetFrameCount()%500)==0)
   //    printf("headHoldrc_yaw,Desire,Actual:%f %d %f %f\n",headHold,rc_yaw, eulerYawDesired, eulerYawActual);
+#else
+#ifdef WSPEED_DEGREE
+  if(rc_roll) {
+    if (fabs(rc_yaw)==0) {
+      eulerYawDesired = 0;
+    } 
+    else {
+      eulerYawDesired = rc_yaw;
+    }
+  }
+  else {
+    if ((rc_aux1==255)||(rc_yaw==0)) {
+      if(magMode&&(!headFreeMode)) {
+        if((yaw_last!=0)&&(rc_aux1==255)) {
+          HoldHead();
+          yaw_last = 0;
+        }
+        eulerYawDesired = headHold;
+      }
+      else 
+        eulerYawDesired = 0;
+    } 
+    else {
+		eulerYawDesired = headHold + rc_yaw;
+      if(eulerYawDesired>360)
+        eulerYawDesired-=360;
+      else if(eulerYawDesired<0)
+        eulerYawDesired+=360;
+    }
+    yaw_last = rc_yaw;
+  }
 #else  
   if(fabs(rc_yaw)<3) {
 			
 	} 
 	else {
+
+
 		if(magMode)
 			HoldHead();
 		if(rc_yaw>0)
@@ -281,12 +326,10 @@ void commanderGetRPY()
     if(eulerYawDesired<-180)
 				eulerYawDesired = eulerYawDesired + 360;
 			else if(eulerYawDesired>180)
-				eulerYawDesired = eulerYawDesired - 360;	
+				eulerYawDesired = eulerYawDesired - 360;
 }
+#endif
 #endif   
-    
-
-  
 #endif
 #endif
 	if(rc_roll>RC_ROLL_DEAD_BAND)
@@ -305,16 +348,17 @@ void commanderGetRPY()
 }
 void commanderGetThrust()
 {
-	int16_t rcData[RC_CHANS], rc_thrust;
+	int16_t rcData[RC_CHANS];
 #ifndef ABROBOT
 	char arm_min_thr = RC_THR_ARM - RC_THR_MIN;
 #endif
-	
 	getRC(rcData);
-	rc_thrust = GetRCThrust();
+	//rc_thrust = GetRCThrust();
 #ifdef ABROBOT
   Actuator.actuatorThrust = (rcData[PITCH_CH] - RC_PITCH_MID);
   speedDesired = Actuator.actuatorThrust/6;
+  if(speedDesired==0)
+    controllerResetAllPID();
 #else
 	if(checkArm()) {
 		if(rc_thrust<arm_min_thr) {
@@ -726,6 +770,12 @@ void stabilizer()
 	
 #ifdef WSPEED
 	yawRateDesired = -eulerYawDesired;
+#else
+#ifdef WSPEED_DEGREE
+  if(wspeedMode) {
+    yawRateDesired = -eulerYawDesired;
+  }
+#endif
 #endif
   //printf("%f  %f  %f \n", rollRateDesired, pitchRateDesired, yawRateDesired);
 	nvtGetCalibratedGYRO(gyro);
