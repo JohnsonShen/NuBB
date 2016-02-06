@@ -52,7 +52,7 @@ extern char GetChar(void);
 
 uint16_t* rcValueSSV;
 uint8_t	FlyMode = FLY_MODE_BASIC;
-uint16_t RxChannel[RC_CHANS];
+uint16_t RxChannel[RC_CHANS]={512,512,512,512,512,512};
 extern RF_DATA RxData;
 
 void SPI_Init(void)

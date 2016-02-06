@@ -27,6 +27,7 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #include "AltHold.h"
 #include "ssv7241.h"
 #include "RC_ssv.h"
+#include "RC.h"
 //#ifdef M451
 //#if (BOARD_CODE == 200)
 //#define IO_STATE_ARM        PB, BIT0	//PA, BIT0
@@ -48,8 +49,10 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 static char ledState = 0;
 uint32_t LED1_R, LED1_G, LED1_B, LED2_R, LED2_G, LED2_B, Blink, Blink2,brea=0,brea2=0,brea_cnt=0,LED_cnt=0;
 extern uint32_t BAT_LED_R, BAT_LED_G, BAT_LED_B, BAT_Blink, BAT_Brea, BAT_LED_EN;
-extern uint32_t COM_LED_R, COM_LED_G, COM_LED_B, COM_Blink,COM_LED_EN;
-extern uint8_t ini_start,low_bat;
+extern uint32_t COM_LED_R, COM_LED_G, COM_LED_B, COM_Blink,COM_LED_EN,COM2_LED_R, COM2_LED_G, COM2_LED_B, COM2_Blink,COM2_LED_EN;
+extern uint8_t ini_start,low_bat,sleep,Vref_err;
+extern uint16_t RxChannel[RC_CHANS];
+
 void TMR1_IRQHandler(void)
 {
     if(TIMER_GetIntFlag(TIMER1) == 1)
@@ -88,6 +91,24 @@ void TMR1_IRQHandler(void)
 						BLED2=0;
 						GLED2=0;
 				}
+				if (Blink2==11)
+				{
+						uint32_t temp;
+						if (LED_cnt>3333)
+						{
+								temp=GLED2;
+								GLED2=RLED2;
+								RLED2=BLED2;
+								BLED2=temp;							
+						}
+						if (LED_cnt>6666)
+						{
+								temp=GLED2;
+								GLED2=RLED2;
+								RLED2=BLED2;
+								BLED2=temp;	
+						}	
+				}					
 				PA->DOUT = (RLED2<<3)|(RLED2<<6)|(RLED<<15)|(GLED2<<2)|(GLED2<<5)|(GLED<<14)|(BLED2<<1)|(BLED2<<4)|(BLED<<13)|(PA->DOUT&BIT12);
 				if (LED_cnt==10000)
 				{
@@ -146,7 +167,9 @@ void led_mag_state(char state)
 
 void UpdateLED()
 {
-		if ((COM_LED_EN==1)&&(ini_start==0))
+		if (((COM_LED_EN==1)||(COM2_LED_EN==1))&&(ini_start==0)&&(sleep==0))
+		{
+			if(COM_LED_EN==1)
 		{
 				LED1_R=COM_LED_R;
 				LED1_G=COM_LED_G;
@@ -154,14 +177,26 @@ void UpdateLED()
 				Blink=COM_Blink;
 				brea=0;
 		}
-		else if ((BAT_LED_EN==1)&&(ini_start==0))
+			if(COM2_LED_EN==1)
+			{
+				LED2_R=COM2_LED_R;
+				LED2_G=COM2_LED_G;
+				LED2_B=COM2_LED_B;
+				Blink2=COM2_Blink;
+				brea2=0;
+			}
+		}		
+		if (((BAT_LED_EN==1)&&(ini_start==0)&&(sleep==0))||(Vref_err))
+		{
+				if((COM_LED_EN==0)||(Vref_err))
 		{
 				LED1_R=BAT_LED_R;
 				LED1_G=BAT_LED_G;
 				LED1_B=BAT_LED_B;
 				Blink=BAT_Blink;
 				brea=BAT_Brea;
-				if(low_bat==1)
+				}
+				if((low_bat==1)&&(COM2_LED_EN==0))
 				{
 						LED2_R=100;
 						LED2_G=0;
@@ -169,7 +204,7 @@ void UpdateLED()
 						Blink2=2;
 						brea2=0;
 				}
-				else
+				else if (((low_bat==0)&&(COM2_LED_EN==0))||(Vref_err))
 				{
 						LED2_R=0;
 						LED2_G=0;
@@ -178,7 +213,22 @@ void UpdateLED()
 						brea2=0;
 				}
 		}
-		else if ((COM_LED_EN==0)&&(BAT_LED_EN==0)&&(ini_start==0))
+		if ((RxChannel[PITCH_CH]!=512)&&(ini_start==0)&&(sleep==0)&&(low_bat==0)&&(COM2_LED_EN==0))
+		{
+				uint32_t temp,temp2;
+				temp=RxChannel[PITCH_CH];
+				temp=((RxChannel[PITCH_CH]-512)>0)?((RxChannel[PITCH_CH]-512)*100/512):((512-RxChannel[PITCH_CH])*100/512);
+				if (temp>90)
+					temp2=temp-((temp-90)*10);
+				else
+					temp2=temp;
+				LED2_R=temp;
+				LED2_G=temp2;
+				LED2_B=temp2;
+				Blink2=10;
+				brea2=0;
+		}
+		if ((COM_LED_EN==0)&&(COM2_LED_EN==0)&&(BAT_LED_EN==0)&&(ini_start==0)&&(sleep==0))
 		{
 				LED1_R=0;
 				LED1_G=0;

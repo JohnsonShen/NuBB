@@ -40,8 +40,8 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 /* Define global variables and constants                                                                   */
 /*---------------------------------------------------------------------------------------------------------*/
 volatile uint32_t g_u32AdcIntFlag;
-static uint16_t  AdcData = 0,BAT_TEMP2,BAT_PR,TEMP1,ADP_IN,USB_IN,BAT_PR_M,ID_ADC,USB_CC1_ADC,bat_cnt=0,Dis_charge=1;
-uint8_t BatteryPercent=2,charge,full=0,low_bat=0;
+static uint16_t  AdcData = 0,BAT_TEMP2,BAT_PR,TEMP1,ADP_IN,USB_IN,BAT_PR_M,ID_ADC,USB_CC1_ADC, Band,Band_cnt=0,bat_cnt=0,Dis_charge=1;
+uint8_t BatteryPercent=2,charge,full=0,low_bat=0,Vref_err;
 uint32_t g_u32RTCTickINT=0,R_value,L_value;
 uint8_t R_cnt=1,L_cnt=1,R_rl=3,L_rl=3,start=0;
 int16_t speed[2]={0,0};
@@ -132,7 +132,7 @@ void GPB_IRQHandler(void)
 				else if(L_cnt==2)
 				{
 						speed[0]=(277778/(TIMER3->CNT-L_value));
-            if (PB1==1)
+            if (PB1==0)
                 speed[0]=-speed[0];
 						L_cnt=0;
 						GPIO_DisableInt(PB, 0);
@@ -154,7 +154,7 @@ void GPB_IRQHandler(void)
 				else if(R_cnt==2)
 				{
 						speed[1]=(277778/(TIMER3->CNT-R_value));
-            if (PC3==0)
+            if (PC3==1)
                 speed[1]=-speed[1];
 						R_cnt=0;
 						GPIO_DisableInt(PB, 3);
@@ -203,13 +203,14 @@ void Battery_Init(void)
 	EADC_ConfigSampleModule(EADC, 5, EADC_SOFTWARE_TRIGGER, 4);
 	EADC_ConfigSampleModule(EADC, 6, EADC_SOFTWARE_TRIGGER, 14);
 	EADC_ConfigSampleModule(EADC, 7, EADC_SOFTWARE_TRIGGER, 15);
+	EADC_ConfigSampleModule(EADC, 8, EADC_SOFTWARE_TRIGGER, 16);
 	
 	/* Clear the A/D ADINT0 interrupt flag for safe */
 	EADC_CLR_INT_FLAG(EADC, 0x1);
 
 	/* Enable the sample module 0 interrupt.  */
 	EADC_ENABLE_INT(EADC, 0x1);//Enable sample module A/D ADINT0 interrupt.
-	EADC_ENABLE_SAMPLE_MODULE_INT(EADC, 0, (BIT0|BIT1|BIT2|BIT3|BIT4|BIT5|BIT6|BIT7));//Enable sample module 0 interrupt.
+	EADC_ENABLE_SAMPLE_MODULE_INT(EADC, 0, (BIT0|BIT1|BIT2|BIT3|BIT4|BIT5|BIT6|BIT7|BIT8));//Enable sample module 0 interrupt.
 	NVIC_EnableIRQ(ADC00_IRQn);
 	
 	/* Reset the ADC interrupt indicator and trigger sample module 0 to start A/D conversion */
@@ -220,7 +221,7 @@ void Battery_Init(void)
 	SYS->GPA_MFPH = (SYS->GPA_MFPH & (~SYS_GPA_MFPH_PA12MFP_Msk));
 	PA12=0;		//USB boost enable 
 	PB13=1;
-	PB14=1;
+	PB14=0;
 	GPIO_SetMode(PA, BIT12, GPIO_MODE_OUTPUT);
 	GPIO_SetMode(PB, BIT13, GPIO_MODE_OUTPUT);
 	GPIO_SetMode(PB, BIT14, GPIO_MODE_OUTPUT);
@@ -243,7 +244,7 @@ bool CheckLowBattery()
 }
 void led_level(void)
 {
-		if (((Dis_charge_pin == 1)||(Dis_charge == 1))&&(PD10==0))
+		if (((Dis_charge_pin == 1)&&(Dis_charge == 1))&&(PD10==0))
 		{
 				if (BatteryPercent>=4)
 				{
@@ -286,7 +287,7 @@ void led_level(void)
 							low_bat=0;
 				}
 		}
-		else if (((Dis_charge_pin == 1)||(Dis_charge == 1))&&(PD10==1))
+		else if (((Dis_charge_pin == 1)&&(Dis_charge == 1))&&(PD10==1))
 		{
 							BAT_LED_R=0;
 							BAT_LED_G=0;
@@ -345,7 +346,7 @@ void UpdateBattery()
 							BatteryPercent=0;//100 percent
 //							full=1;
 							report_ASIC(0x6A,0x04,0x01,0x01,charge,BatteryPercent,0,0,0,0);
-							led_level();
+//							led_level();
 							PD11=0;
 //							printf("Level:100\n");
 					}
@@ -357,7 +358,7 @@ void UpdateBattery()
 					{					
 							BatteryPercent=1;//75 percent
 							report_ASIC(0x6A,0x04,0x01,0x01,charge,BatteryPercent,0,0,0,0);
-							led_level();
+//							led_level();
 							PD11=0;
 //						printf("Level:75\n");
 					}	
@@ -365,7 +366,7 @@ void UpdateBattery()
 					{
 							BatteryPercent=2;//50 percent
 							report_ASIC(0x6A,0x04,0x01,0x01,charge,BatteryPercent,0,0,0,0);
-							led_level();
+//							led_level();
 							PD11=0;
 //						printf("Level:50\n");
 					}
@@ -373,7 +374,7 @@ void UpdateBattery()
 					{	
 							BatteryPercent=3;//25 percent
 							report_ASIC(0x6A,0x04,0x01,0x01,charge,BatteryPercent,0,0,0,0);
-							led_level();
+//							led_level();
 							PD11=0;
 //						printf("Level:25\n");
 					}	
@@ -381,7 +382,7 @@ void UpdateBattery()
 					{
 							BatteryPercent=4;//10 percent
 							report_ASIC(0x6A,0x04,0x01,0x01,charge,BatteryPercent,0,0,0,0);
-							led_level();
+//							led_level();
 							PD11=0;
 //						printf("Level:0\n");
 					}
@@ -389,10 +390,11 @@ void UpdateBattery()
 					{
 							BatteryPercent=5;//off
 							report_ASIC(0x6A,0x04,0x01,0x01,charge,BatteryPercent,0,0,0,0);
-							led_level();
+//							led_level();
 							PD11=0;
 //						printf("Level:off\n");
 					}
+					led_level();
 					g_u32AdcIntFlag++;
 					EADC_START_CONV(EADC, BIT2);
 			}
@@ -424,7 +426,7 @@ void UpdateBattery()
 					else if ((USB_IN>0x649) && (ADP_IN>0x5B7) && (Dis_charge_pin ==0)&&(USB_CS==1))
 					{
 							USB_CS = 0;
-							USB_boost=0;
+							USB_boost=1;
 					}
 					else if ((USB_IN>0x649) && (ADP_IN<0x5B7) && (Dis_charge_pin ==0)&&(USB_CS==0))
 					{
@@ -437,7 +439,7 @@ void UpdateBattery()
 			else if(g_u32AdcIntFlag==9)
 			{	
 					USB_IN = EADC_GET_CONV_DATA(EADC, 4);
-					if ((USB_IN>0x649) && (USB_IN<0x880) && (ADP_IN<0x5B7) && (Dis_charge ==1)&&(full==0))
+					if ((((USB_IN>0x649) && (USB_IN<0x880) && (ADP_IN<0x5B7))||(Vref_err==1)) && (Dis_charge ==1)&&(full==0))
 					{
 							report_ASIC(0x6A,0x04,0x01,0x01,charge,BatteryPercent,0,0,0,0);
 							USB_CS = 1;
@@ -457,6 +459,8 @@ void UpdateBattery()
 					{
 							report_ASIC(0x6A,0x04,0x01,0x01,charge,BatteryPercent,0,0,0,0);
 							Dis_charge = 1;
+							USB_CS = 1;
+							USB_boost=0;
 							led_level();
 							charge=0;
 							PD11=0;
@@ -479,6 +483,27 @@ void UpdateBattery()
 			else if(g_u32AdcIntFlag==15)
 			{
 					USB_CC1_ADC = EADC_GET_CONV_DATA(EADC, 7);					
+					g_u32AdcIntFlag++;
+					EADC_START_CONV(EADC, BIT8);
+			}
+			else if(g_u32AdcIntFlag==17)
+			{
+					Band = EADC_GET_CONV_DATA(EADC, 8);
+//					if ((Band<0xC62)||(Band<0xC62))
+//							Band_cnt++;
+//					else
+//							Band_cnt=0;
+//					if(Band_cnt>100)
+//					{
+//							Vref_err=1;
+//							BAT_LED_R=100;
+//							BAT_LED_G=100;
+//							BAT_LED_B=100;
+//							BAT_Blink=10;
+//							BAT_Brea=1;
+//							low_bat=0;
+//							BAT_LED_EN=1;
+//					}
 					g_u32AdcIntFlag=0;
 			}
 	}

@@ -101,8 +101,8 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #define PID_YAW_RATE_KD  0.0
 #else
 #ifdef ABROBOT
-#define PID_YAW_RATE_KP  0.84f
-#define PID_YAW_RATE_KI  0.02f
+#define PID_YAW_RATE_KP  1.35f/*0.84f*/
+#define PID_YAW_RATE_KI  0.03f/*0.02f*/
 #define PID_YAW_RATE_KD  0.0f
 #else
 #define PID_YAW_RATE_KP  1.08f/*20.5*/
@@ -133,8 +133,8 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #define PID_PITCH_INTEGRATION_LIMIT   20.0
 
 #ifdef ABROBOT
-#define PID_YAW_KP  18.9f
-#define PID_YAW_KI  2.15f
+#define PID_YAW_KP  20.8f/*18.9f*/
+#define PID_YAW_KI  2.59f/*2.15f*/
 #define PID_YAW_KD  0.0f
 #else
 #define PID_YAW_KP  0.0

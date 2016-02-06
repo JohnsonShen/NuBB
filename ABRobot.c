@@ -38,6 +38,7 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #include "battery.h"
 #include "motors.h"
 #include "IR.h"
+#include "PSDIR.h"
 #include "Hall.h"
 #include "asic_ini.h"
 #ifdef OPTION_RC
@@ -51,9 +52,9 @@ int freq=0;
 #endif
 #include "MPU6050.h"
 #define MAG_INTERVAL 4
-#define code_version 0x00000900	//code version: 0.090
+#define code_version 0x00010900	//code version: 0.190
 extern RF_DATA RxData;
-uint32_t COM_LED_R, COM_LED_G, COM_LED_B, COM_Blink,COM_LED_EN=0,code_ver,code_update;
+uint32_t COM_LED_R, COM_LED_G, COM_LED_B, COM_Blink,COM2_LED_R, COM2_LED_G, COM2_LED_B, COM2_Blink,COM_LED_EN=0,COM2_LED_EN=0,code_ver,code_update;
 extern uint32_t LED1_R, LED1_G, LED1_B;
 extern int16_t  motor_enable;
 extern int16_t speed[2];
@@ -61,7 +62,7 @@ extern uint8_t BatteryPercent,charge,asic_ready,ini_start;
 extern uint16_t RxChannel[RC_CHANS];
 extern uint16_t* rcValueSSV;
 extern uint16_t  camera;
-uint8_t au8IR_CODE[4],notify=0,notify_buf[10],keyin=0,spin,spin_cnt,ss=0;
+uint8_t au8IR_CODE[4],notify=0,notify_buf[10],keyin=0,spin,spin_cnt,ss=0,sleep=0;
 
 void version_check(void)
 {
@@ -291,7 +292,7 @@ void setup()
 	TIMER_Init();
 	LED_Init();
   motorsInit();
-	
+	PSDIR_init();
 #endif
 #ifdef ABROBOT
   ABRobotMotorInit();
@@ -313,7 +314,7 @@ void CommandProcess()
 {
 	if ((notify==1)&&(PD11==0))
 	{
-		UART_Write(DEBUG_PORT,notify_buf,(notify_buf[1]+2));
+//		UART_Write(DEBUG_PORT,notify_buf,(notify_buf[1]+2));
 		notify=0;
 		PD11=1;
 		GPIO_EnableInt(PD, 14, GPIO_INT_FALLING);
@@ -537,6 +538,9 @@ void CommandProcess()
 						else if((buf[0] == 0x01)&&(buf[1] == 02)){ 
 								asic_ready=1;
 						}
+						else if((buf[0] == 0x01)&&(buf[1] == 03)){ 
+								sleep=buf[2];
+						}
 //						UART_Write(DEBUG_PORT,buf,length);
 				}
 				else
@@ -564,6 +568,15 @@ void CommandProcess()
 								COM_LED_EN=1;
 								if ((buf[2]==0)&&(buf[3]==0)&&(buf[4]==0))
 										COM_LED_EN=0;
+						}
+						else if((buf[0] == 0x01)&&(buf[1] == 02)){
+								COM2_LED_R=buf[2];
+								COM2_LED_G=buf[3];
+								COM2_LED_B=buf[4];
+								COM2_Blink=buf[5];
+								COM2_LED_EN=1;
+								if ((buf[2]==0)&&(buf[3]==0)&&(buf[4]==0))
+										COM2_LED_EN=0;
 						}
 //						UART_Write(DEBUG_PORT,buf,length);
 				}
@@ -656,10 +669,15 @@ void loop()
 #ifdef OPTION_RC
 	if(GetFrameCount()==MOTORS_ESC_DELAY)
 		motorsStart();
-  //if((GetFrameCount()%2)==1)
+  if((GetFrameCount()%2)==1)
+		Get_PSDIR();
     stabilizer();
-	if((GetFrameCount()%12)==0)
+	if((GetFrameCount()%10)==0)
+	{
+		sleep_mode(sleep);
 		UpdateLED();
+//		GetFusionSpeed();
+	}
 #endif
   IncFrameCount(1);
 }
@@ -670,6 +688,8 @@ void loop()
 int32_t main (void)
 {
 	setup();
+//		motor_enable=1;
+//	PB5=1;	//enable motor power
 	while(true) loop();
 }
 

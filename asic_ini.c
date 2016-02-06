@@ -41,9 +41,9 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #include "asic_ini.h"
 #include "Def.h"
 #include "Timer_Ctrl.h"
-extern uint32_t LED1_R, LED1_G, LED1_B, Blink,brea,LED2_R, LED2_G, LED2_B, Blink2,brea2;
-uint32_t ini_Tick=0,cur_Tick;
-uint8_t ini_start=0,asic_ready=1;
+extern uint32_t LED1_R, LED1_G, LED1_B, Blink,brea,LED2_R, LED2_G, LED2_B, Blink2,brea2,brea_cnt;
+uint32_t ini_Tick=0,cur_Tick,sleep_ini_Tick=0,sleep_cur_Tick;
+uint8_t ini_start=0,asic_ready=1,ini_LED;
 
 void asic_init(void)
 {
@@ -72,21 +72,40 @@ uint8_t asic_power(uint8_t key)
 			cur_Tick=ini_Tick;
 			LED1_R=0;
 			LED1_G=100;
-			LED1_B=100;
+			LED1_B=0;//100;
 			Blink=10;
 			brea=1;
 			LED2_R=0;
 			LED2_G=100;
-			LED2_B=100;
+			LED2_B=0;//100;
 			Blink2=10;
 			brea2=1;
 			PD10=0;
 			ini_start=1;
+			ini_LED=(brea_cnt%4)/2;
 	}
 	else if((key==1)&&(ini_start>=1)&&(asic_ready==0))
 	{
 			if (getTickCount()<ini_Tick)
 					ini_Tick=0;
+			if ((brea_cnt%4)==(ini_LED*2))
+			{
+					LED1_R=0;
+					LED1_G=100;
+					LED1_B=0;
+					LED2_R=0;
+					LED2_G=100;
+					LED2_B=0;
+			}
+			else if(((brea_cnt%4)==((1-ini_LED)*2)))
+			{
+					LED1_R=0;
+					LED1_G=0;
+					LED1_B=100;
+					LED2_R=0;
+					LED2_G=0;
+					LED2_B=100;
+			}
 			if (((getTickCount()-ini_Tick)>600000)&&(ini_start==1)&&(asic_ready==0))
 			{
 					PD10=1;
@@ -153,5 +172,40 @@ uint8_t factory_reset(uint8_t status)
 						LED2_B=100;
 					}
 			}
+	}
+}
+uint8_t sleep_mode(uint8_t status)
+{
+	if ((status==1)&&(sleep_ini_Tick==0)&&(ini_start==0))
+	{
+			sleep_ini_Tick=getTickCount();
+			sleep_cur_Tick=sleep_ini_Tick;
+			LED1_R=0;
+			LED1_G=0;
+			LED1_B=0;
+			Blink=0;
+			brea=0;
+	}
+	else if((status==1)&&(getTickCount()>sleep_ini_Tick)&&(ini_start==0))
+	{
+			uint32_t temp;
+			sleep_cur_Tick=getTickCount();
+			temp=(sleep_cur_Tick-sleep_ini_Tick)%5000;
+			if (temp==0)
+			{
+					LED1_R=100;
+					LED1_G=100;
+					LED1_B=0;
+					Blink=10;
+					brea=0;	
 			}
+			else if (temp==1000)
+			{
+					LED1_R=0;
+					LED1_G=0;
+					LED1_B=0;
+					Blink=0;
+					brea=0;
+			}
+	}
 }

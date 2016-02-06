@@ -48,8 +48,8 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #define CCW   1
 #define CW    2
 #define BREAK 3
-#define R     0
-#define L     1
+#define R     1
+#define L     0
 #define C     2
 #define M     2
 typedef struct {

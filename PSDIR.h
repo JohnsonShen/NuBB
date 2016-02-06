@@ -25,14 +25,18 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
  *                                                                            *
  *============================================================================*
  */
-#ifndef ASIC_INI_H_
-#define ASIC_INI_H_
+#ifndef PSDIR_H_
+#define PSDIR_H_
 
+#include <stdbool.h>
 #include "Def.h"
 
-void asic_init(void);
-uint8_t asic_power(uint8_t key);
-uint8_t factory_reset(uint8_t status);
-uint8_t sleep_mode(uint8_t status);
-#endif /* ASIC_INI_H_ */
+
+extern void PSDIR_init(void);
+int8_t I2C0_readBytes(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8_t *data, uint16_t timeout);
+bool I2C0_writeBytes(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8_t* data);
+void I2C0_Callback_Tx_Continue(uint32_t status,uint8_t Addr);
+void I2C0_Callback_Rx_Continue(uint32_t status, uint8_t Addr);
+void Get_PSDIR(void);
+#endif /* PSDIR_H_ */
 

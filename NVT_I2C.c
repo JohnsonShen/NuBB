@@ -50,7 +50,7 @@ extern void DelayUsec(unsigned int usec);
 extern void DelayMsec(unsigned int usec);
 #ifdef M451
 typedef void (*I2C_FUNC)(uint32_t u32Status);
-static volatile I2C_FUNC s_I2C0HandlerFn = NULL;
+//static volatile I2C_FUNC s_I2C0HandlerFn = NULL;
 static volatile I2C_FUNC s_I2C1HandlerFn = NULL;
 void I2CX_IRQHandler(uint8_t id)
 {
@@ -83,11 +83,12 @@ void I2CX_IRQHandler(uint8_t id)
 				break;
 			}
 			default: {
-				if(id==0) {
-				if(s_I2C0HandlerFn != NULL)
-					s_I2C0HandlerFn(u32Status);
-			}	
-				else if(id==1) {
+//				if(id==0) {
+//				if(s_I2C0HandlerFn != NULL)
+//					s_I2C0HandlerFn(u32Status);
+//			}	
+//				else 
+				if(id==1) {
 					if(s_I2C1HandlerFn != NULL)
 						s_I2C1HandlerFn(u32Status);
 		}
@@ -653,7 +654,7 @@ uint8_t NVT_WriteByteContinue_addr8(uint8_t address,uint8_t* data, uint8_t len)
 	ErrorFlag = 0;
 	ContinueLen=len+1;
 #ifdef M451
-	s_I2C0HandlerFn = (I2C_FUNC)I2C_Callback_Tx_Continue;
+//	s_I2C0HandlerFn = (I2C_FUNC)I2C_Callback_Tx_Continue;
 	s_I2C1HandlerFn = (I2C_FUNC)I2C_Callback_Tx_Continue;
 	while(I2C_PORT->CTL & I2C_CTL_STO_Msk)
 	{
@@ -695,7 +696,7 @@ uint8_t NVT_ReadByteContinue_addr8(uint8_t address,uint8_t* data, uint8_t len, u
 	ContinueLen = len;
 	Tx_Data0[0] = address;
 #ifdef M451
-	s_I2C0HandlerFn = (I2C_FUNC)I2C_Callback_Rx_Continue;
+//	s_I2C0HandlerFn = (I2C_FUNC)I2C_Callback_Rx_Continue;
 	s_I2C1HandlerFn = (I2C_FUNC)I2C_Callback_Rx_Continue;
 	while(I2C_PORT->CTL & I2C_CTL_STO_Msk)
 	{
