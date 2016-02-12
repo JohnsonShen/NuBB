@@ -90,4 +90,5 @@ void MotorDisArm(void);
 bool IsSSVConnected(void);
 int16_t GetRCThrust(void);
 int16_t GetRCAltitude(void);
+void Channel_Reset(void);
 #endif

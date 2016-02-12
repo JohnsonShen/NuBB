@@ -45,12 +45,17 @@ void RC_Enable(char enable)
 	else
 		RC_PWM_Enable(enable);
 }
-void RC_Init(void)
+void Channel_Reset(void)
 {
-	char i;
+  char i;
 	for(i = 0; i<RC_CHANS; i++)
 		rcData[i] = 1512;
   
+  rcData[AUX1_CH] = 128;
+}
+void RC_Init(void)
+{
+  Channel_Reset();
 	beSSVConnected = RC_SSV_Init();
 	if(beSSVConnected)
 		printf("SSV Receiver Detected.\n");

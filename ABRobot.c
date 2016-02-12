@@ -126,6 +126,7 @@ void GPD_IRQHandler(void)
 				{
 						motor_enable=0;
 						PB5=0;
+            Channel_Reset();
 						TIMER_Delay(TIMER0,100);
 						key_cnt++;
 						if ((key_cnt/3570)%2==0)
@@ -472,8 +473,9 @@ void CommandProcess()
 								}
 								else if ((buf[2]==0)&&(PB14==1))
 								{
-										motor_enable=0;
-										PB5=0;
+                  motor_enable=0;
+									PB5=0;
+                  Channel_Reset();
 								}
 						}
 						else if((buf[0] == 0x06)&&(buf[1] == 00)){								

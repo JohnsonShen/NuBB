@@ -142,6 +142,11 @@ void commanderGetRPY()
 	rc_pitch = (rcData[PITCH_CH] - RC_PITCH_MID);
 	rc_yaw = (rcData[YAW_CH] - RC_YAW_MID);
 	rc_aux1 = rcData[AUX1_CH];
+  
+  if((rc_roll!=0)||((rc_aux1!=128)&&(rc_aux1!=255))) {
+    motor_enable = 1;
+    PB5=1;
+  }
 #ifdef ABROBOT
   //if((rc_pitch==0)&&(rc_roll==0)&&(rc_aux1==128))
   //  controllerResetAllPID();
@@ -283,6 +288,10 @@ void commanderGetRPY()
   //    printf("headHoldrc_yaw,Desire,Actual:%f %d %f %f\n",headHold,rc_yaw, eulerYawDesired, eulerYawActual);
 #else
 #ifdef WSPEED_DEGREE
+  if(motor_enable==false) {
+    HoldHead();
+    yaw_last = 0;
+  }
   if(rc_roll) {
     if (fabs(rc_yaw)==0) {
       eulerYawDesired = 0;
@@ -359,6 +368,12 @@ void commanderGetThrust()
 	//rc_thrust = GetRCThrust();
 #ifdef ABROBOT
   Actuator.actuatorThrust = (rcData[PITCH_CH] - RC_PITCH_MID);
+  if(Actuator.actuatorThrust!=0) {
+    //if((GetFrameCount()%500)==0)
+    //  printf("actuatorThrust,motor_enable:%d,%d\n",Actuator.actuatorThrust,motor_enable);
+    motor_enable = 1;
+    PB5=1;
+  }
   speedDesired = Actuator.actuatorThrust/6;
   
 #else
