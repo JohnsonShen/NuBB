@@ -139,7 +139,7 @@ void commanderGetRPY()
   
 	getRC(rcData);
 	rc_roll = (rcData[ROLL_CH] - RC_ROLL_MID);
-	rc_pitch = (rcData[PITCH_CH] - RC_PITCH_MID);
+	rc_pitch = (rcData[THR_CH] - RC_PITCH_MID); //(rcData[PITCH_CH] - RC_PITCH_MID);
 	rc_yaw = (rcData[YAW_CH] - RC_YAW_MID);
 	rc_aux1 = rcData[AUX1_CH];
   
@@ -186,7 +186,9 @@ void commanderGetRPY()
 #endif
 
   rc_roll =0;
+	if(nvtGetAHRSID()==0)
   rc_pitch = 0;
+	
   if(!magMode)
     HoldHead();
 

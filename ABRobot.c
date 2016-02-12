@@ -52,7 +52,7 @@ int freq=0;
 #endif
 #include "MPU6050.h"
 #define MAG_INTERVAL 4
-#define code_version 0x00010900	//code version: 0.190
+#define code_version 0x00020200	//code version: 0.190
 extern RF_DATA RxData;
 uint32_t COM_LED_R, COM_LED_G, COM_LED_B, COM_Blink,COM2_LED_R, COM2_LED_G, COM2_LED_B, COM2_Blink,COM_LED_EN=0,COM2_LED_EN=0,code_ver,code_update;
 extern uint32_t LED1_R, LED1_G, LED1_B;
@@ -146,6 +146,8 @@ void GPD_IRQHandler(void)
                 LED1_G=0;
                 LED1_B=0;
 								PA->DOUT = 0|(PA->DOUT&BIT12);
+								while(Serial_available()!=0)
+								Serial_read();
 								break;						
 						}
 				}
@@ -484,6 +486,28 @@ void CommandProcess()
                 RTC_SetTime(buf[6], buf[7], buf[8], RTC_CLOCK_24, RTC_AM);
 						}
 //						UART_Write(DEBUG_PORT,buf,length);
+				}
+				else
+				{
+						while(Serial_available()!=0)
+								buf[0] = Serial_read();
+//						UART_Write(DEBUG_PORT,buf,Serial_available());
+				}
+		}
+		else if(start == 0x2A){ 
+				uint8_t buf[10],i;
+				uint16_t temp;
+				int length = Serial_read();
+				if(WaitDataReady(length)==1)
+				{
+						for(i=0;i<length;i++)
+								buf[i] = Serial_read();
+						if((buf[0] == 0x01)&&(buf[1] == 00)){ 
+								temp=512-(buf[2]-128)/5;
+								RxData.BUF[0] = temp>>2;
+								RxData.BUF[4] = (RxData.BUF[4]&0x3F)||((temp&0x03)<<6);
+								RxData.num=5;
+						}
 				}
 				else
 				{

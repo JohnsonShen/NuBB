@@ -341,7 +341,7 @@ void UpdateBattery()
 					else if ((AdcData - BAT_PR) < 0x200)
 						AdcData=(AdcData+BAT_PR)/2;
 //					printf("ADC: %d\n",AdcData);
-					if ((AdcData>=1921)&& ((BatteryPercent!=1)||(Dis_charge_pin==0))&& (BatteryPercent!=0))
+					if ((AdcData>=1959)&& ((BatteryPercent!=1)||(Dis_charge_pin==0))&& (BatteryPercent!=0))
 					{
 							BatteryPercent=0;//100 percent
 //							full=1;
@@ -350,11 +350,11 @@ void UpdateBattery()
 							PD11=0;
 //							printf("Level:100\n");
 					}
-					else if ((AdcData<1950)&& (AdcData>=1921))
+					else if (AdcData<1983)
 					{
 							full=0;
 					}
-					else if ((AdcData<1911)&&(AdcData>=1849)&& ((BatteryPercent<1)||(Dis_charge_pin==0))&& (BatteryPercent!=1))
+					else if ((AdcData<1959)&&(AdcData>=1921)&& ((BatteryPercent<1)||(Dis_charge_pin==0))&& (BatteryPercent!=1))
 					{					
 							BatteryPercent=1;//75 percent
 							report_ASIC(0x6A,0x04,0x01,0x01,charge,BatteryPercent,0,0,0,0);
@@ -362,7 +362,7 @@ void UpdateBattery()
 							PD11=0;
 //						printf("Level:75\n");
 					}	
-					else if ((AdcData<1839)&&(AdcData>=1778)&& ((BatteryPercent<2)||(Dis_charge_pin==0))&& (BatteryPercent!=2))
+					else if ((AdcData<1911)&&(AdcData>=1849)&& ((BatteryPercent<2)||(Dis_charge_pin==0))&& (BatteryPercent!=2))
 					{
 							BatteryPercent=2;//50 percent
 							report_ASIC(0x6A,0x04,0x01,0x01,charge,BatteryPercent,0,0,0,0);
@@ -370,7 +370,7 @@ void UpdateBattery()
 							PD11=0;
 //						printf("Level:50\n");
 					}
-					else if ((AdcData<1768)&&(AdcData>=1706)&& ((BatteryPercent<3)||(Dis_charge_pin==0))&& (BatteryPercent!=3))
+					else if ((AdcData<1839)&&(AdcData>=1778)&& ((BatteryPercent<3)||(Dis_charge_pin==0))&& (BatteryPercent!=3))
 					{	
 							BatteryPercent=3;//25 percent
 							report_ASIC(0x6A,0x04,0x01,0x01,charge,BatteryPercent,0,0,0,0);
@@ -378,7 +378,7 @@ void UpdateBattery()
 							PD11=0;
 //						printf("Level:25\n");
 					}	
-					else if ((AdcData<1696)&&(AdcData>=1634)&& ((BatteryPercent<4)||(Dis_charge_pin==0))&& (BatteryPercent!=4))
+					else if ((AdcData<1768)&&(AdcData>=1706)&& ((BatteryPercent<4)||(Dis_charge_pin==0))&& (BatteryPercent!=4))
 					{
 							BatteryPercent=4;//10 percent
 							report_ASIC(0x6A,0x04,0x01,0x01,charge,BatteryPercent,0,0,0,0);
@@ -386,7 +386,7 @@ void UpdateBattery()
 							PD11=0;
 //						printf("Level:0\n");
 					}
-					else if ((AdcData<1624)&& ((BatteryPercent<5)||(Dis_charge_pin==0))&& (BatteryPercent!=5))
+					else if ((AdcData<1696)&& ((BatteryPercent<5)||(Dis_charge_pin==0))&& (BatteryPercent!=5))
 					{
 							BatteryPercent=5;//off
 							report_ASIC(0x6A,0x04,0x01,0x01,charge,BatteryPercent,0,0,0,0);

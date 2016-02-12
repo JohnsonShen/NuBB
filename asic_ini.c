@@ -131,12 +131,12 @@ uint8_t factory_reset(uint8_t status)
 	{
 			ini_Tick=getTickCount();
 			cur_Tick=ini_Tick;
-			LED1_R=100;
+			LED1_R=0;
 			LED1_G=0;
 			LED1_B=0;
 			Blink=10;
 			brea=0;
-			LED2_R=100;
+			LED2_R=0;
 			LED2_G=0;
 			LED2_B=0;
 			Blink2=10;
@@ -145,31 +145,24 @@ uint8_t factory_reset(uint8_t status)
 	}
 	else if((status==1)&&(getTickCount()>=5000))
 	{
-			if (getTickCount()>(cur_Tick+300))
+			if (getTickCount()>(cur_Tick+500))
 			{
 					uint32_t LEDM;
 					cur_Tick=getTickCount();
-					LEDM=(cur_Tick-ini_Tick)/300;
-					if ((LEDM%3)==0)
+					LEDM=(cur_Tick-ini_Tick)/1000;
+					if ((LEDM%2)==1)
 					{
 						LED1_R=100;
 						LED1_B=0;	
 						LED2_R=100;
 						LED2_B=0;	
 					}
-					else if ((LEDM%3)==1)
+					else
 					{
 						LED1_R=0;
-						LED1_G=100;		
+						LED1_B=0;	
 						LED2_R=0;
-						LED2_G=100;	
-					}
-					else if ((LEDM%3)==2)
-					{
-						LED1_G=0;	
-						LED1_B=100;
-						LED2_G=0;	
-						LED2_B=100;
+						LED2_B=0;	
 					}
 			}
 	}
@@ -180,11 +173,15 @@ uint8_t sleep_mode(uint8_t status)
 	{
 			sleep_ini_Tick=getTickCount();
 			sleep_cur_Tick=sleep_ini_Tick;
-			LED1_R=0;
+			LED1_R=100;
 			LED1_G=0;
 			LED1_B=0;
 			Blink=0;
 			brea=0;
+	}
+	else if((status==1)&&(getTickCount()==(sleep_ini_Tick+1000))&&(ini_start==0))
+	{
+			LED1_R=0;
 	}
 	else if((status==1)&&(getTickCount()>sleep_ini_Tick)&&(ini_start==0))
 	{
@@ -193,8 +190,16 @@ uint8_t sleep_mode(uint8_t status)
 			temp=(sleep_cur_Tick-sleep_ini_Tick)%5000;
 			if (temp==0)
 			{
-					LED1_R=100;
-					LED1_G=100;
+					if (((sleep_cur_Tick-sleep_ini_Tick)/5000)%2==1)
+					{
+							LED1_R=0;
+							LED1_G=100;
+					}
+					else
+					{
+							LED1_R=100;
+							LED1_G=0;
+					}
 					LED1_B=0;
 					Blink=10;
 					brea=0;	
