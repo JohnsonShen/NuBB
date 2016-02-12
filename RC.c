@@ -45,6 +45,14 @@ void RC_Enable(char enable)
 	else
 		RC_PWM_Enable(enable);
 }
+void RxChannelInit()
+{
+  char i;
+	for(i = 0; i<RC_CHANS; i++)
+		rcValue[i] = 1512;
+  
+  rcValue[AUX1_CH] = 128;
+}
 void Channel_Reset(void)
 {
   char i;
@@ -52,6 +60,9 @@ void Channel_Reset(void)
 		rcData[i] = 1512;
   
   rcData[AUX1_CH] = 128;
+  
+  RxChannelInit();
+  //printf("->Channel_Reset\n");
 }
 void RC_Init(void)
 {

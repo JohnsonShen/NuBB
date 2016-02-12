@@ -84,6 +84,7 @@ bool IsSSVReceiverConnected()
 	else
 		return false;
 }
+
 bool RC_SSV_Init(void)
 {
 	bool beConnected;
