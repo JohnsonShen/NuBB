@@ -341,7 +341,7 @@ void UpdateBattery()
 					else if ((AdcData - BAT_PR) < 0x200)
 						AdcData=(AdcData+BAT_PR)/2;
 //					printf("ADC: %d\n",AdcData);
-					if ((AdcData>=1921)&& ((BatteryPercent!=1)||(Dis_charge_pin==0)))//&& (BatteryPercent!=0))
+					if ((AdcData>=1921)&& ((BatteryPercent!=1)||(Dis_charge_pin==0))&& (BatteryPercent!=0))
 					{
 							BatteryPercent=0;//100 percent
 //							full=1;

@@ -126,7 +126,7 @@ void GPD_IRQHandler(void)
 				{
 						motor_enable=0;
 						PB5=0;
-            Channel_Reset();
+ 
 						TIMER_Delay(TIMER0,100);
 						key_cnt++;
 						if ((key_cnt/3570)%2==0)
@@ -138,6 +138,7 @@ void GPD_IRQHandler(void)
 						if(key_cnt>49000)
 						{
 								PD10=1;
+                Channel_Reset();
 								keyin=0;
 								asic_ready=0;
                 ini_start=0;
@@ -315,7 +316,7 @@ void CommandProcess()
 {
 	if ((notify==1)&&(PD11==0))
 	{
-//		UART_Write(DEBUG_PORT,notify_buf,(notify_buf[1]+2));
+		UART_Write(DEBUG_PORT,notify_buf,(notify_buf[1]+2));
 		notify=0;
 		PD11=1;
 		GPIO_EnableInt(PD, 14, GPIO_INT_FALLING);
