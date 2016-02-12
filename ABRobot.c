@@ -669,8 +669,8 @@ void loop()
 #ifdef OPTION_RC
 	if(GetFrameCount()==MOTORS_ESC_DELAY)
 		motorsStart();
-  if((GetFrameCount()%2)==1)
-		Get_PSDIR();
+  //if((GetFrameCount()%2)==1)
+	//	Get_PSDIR();
     stabilizer();
 	if((GetFrameCount()%10)==0)
 	{
