@@ -190,7 +190,7 @@ void commanderGetRPY()
 	if(nvtGetAHRSID()==0)
     rc_pitch = 0;
   else {
-    rc_pitch-=20;
+    //rc_pitch-=20;
   }
 	
   if(!magMode)

@@ -38,10 +38,10 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #define LEVEL_KI_DC 4.5f
 #define LEVEL_KD_DC 0
 #define RATE_KP_CAM 2.01f
-#define RATE_KI_CAM 0.1f
+#define RATE_KI_CAM 0.0f
 #define RATE_KD_CAM 0.0f
-#define LEVEL_KP_CAM 40.8f
-#define LEVEL_KI_CAM 4.5f
+#define LEVEL_KP_CAM 120.8f
+#define LEVEL_KI_CAM 0.0f
 #define LEVEL_KD_CAM 0
 #endif
 #ifdef HEX6X
