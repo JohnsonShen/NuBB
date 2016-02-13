@@ -58,7 +58,7 @@ uint32_t COM_LED_R, COM_LED_G, COM_LED_B, COM_Blink,COM2_LED_R, COM2_LED_G, COM2
 extern uint32_t LED1_R, LED1_G, LED1_B;
 extern int16_t  motor_enable;
 extern int16_t speed[2];
-extern uint8_t BatteryPercent,charge,asic_ready,ini_start;
+extern uint8_t BatteryPercent,charge,asic_ready,ini_start,factory;
 extern uint16_t RxChannel[RC_CHANS];
 extern uint16_t* rcValueSSV;
 extern uint16_t  camera;
@@ -133,11 +133,13 @@ void GPD_IRQHandler(void)
 								PA->DOUT = 0x8048|(PA->DOUT&BIT12);	//turn on red led
 						else
 								PA->DOUT = 0|(PA->DOUT&BIT12);
-						if(key_cnt>45000)
-								PD10=1;
+//						if(key_cnt>45000)
+//								PD10=1;
 						if(key_cnt>49000)
 						{
-								PD10=1;
+//								PD10=1;
+								report_ASIC(0x6A,0x02,0x01,0x02,0,0,0,0,0,0);
+								PD11=0;
                 Channel_Reset();
 								keyin=0;
 								asic_ready=0;
@@ -151,7 +153,7 @@ void GPD_IRQHandler(void)
 								break;						
 						}
 				}
-				if (PD10==0)
+				if (asic_ready==1)
 				{
 						PA->DOUT = 0x8048|(PA->DOUT&BIT12);						
 						TIMER_Delay(TIMER0,100000);
@@ -281,13 +283,14 @@ void setup()
 	setupRTC();
 	IR_init();
 	Laser_init();
-	asic_init();
+
 #ifdef GPS
 	setupGPS();
 #endif
 	I2C_Init();
 	FlashInit();
 	version_check();	
+	asic_init();	
 	UpdateBoardVersion(false);
 #ifdef OPTION_RC
 	RC_Init();
@@ -435,7 +438,7 @@ void CommandProcess()
 			}
 		}
 		else if(start == 0x1A){ 
-				char buf[10],i;
+				uint8_t buf[15],i;
 				int length = Serial_read();
 				if(WaitDataReady(length)==1)
 				{
@@ -482,6 +485,29 @@ void CommandProcess()
 								}
 						}
 						else if((buf[0] == 0x06)&&(buf[1] == 00)){								
+								float Euler[3],speed[3];
+								buf[0]=0x1A;
+								buf[1]=12;
+								buf[2]=0x06;							
+								buf[3]=0x00;
+								nvtGetEulerRPY(Euler);							
+								buf[4]=(Euler[0]>=0)?0:1;
+								Euler[0]=(Euler[0]>=0)?Euler[0]:-Euler[0];
+								buf[5]=(int)Euler[0];
+								buf[6]=((int)(Euler[0]*100))%100;							
+								buf[7]=(Euler[1]>=0)?0:1;
+								Euler[1]=(Euler[1]>=0)?Euler[1]:-Euler[1];
+								buf[8]=(int)Euler[1];
+								buf[9]=((int)(Euler[1]*100))%100;							
+								buf[10]=(Euler[2]>=0)?0:1;
+								Euler[2]=(Euler[2]>=0)?Euler[2]:-Euler[2];
+								buf[11]=(int)Euler[2];
+								buf[12]=((int)(Euler[2]*100))%100;
+								nvtGetFusionSpeed(speed);
+								buf[13]=(int)speed[2];
+								UART_Write(DEBUG_PORT,buf,14);
+						}
+						else if((buf[0] == 0x07)&&(buf[1] == 00)){								
 								RTC_SetDate((2000+buf[2]), buf[3], buf[4], buf[5]);
                 RTC_SetTime(buf[6], buf[7], buf[8], RTC_CLOCK_24, RTC_AM);
 						}
@@ -568,6 +594,14 @@ void CommandProcess()
 						else if((buf[0] == 0x01)&&(buf[1] == 03)){ 
 								sleep=buf[2];
 						}
+						else if((buf[0] == 0x01)&&(buf[1] == 04)){ 
+								buf[0]=0x3A;
+								buf[1]=3;
+								buf[2]=0x01;
+								buf[3]=0x04;
+								buf[4]=motor_enable;
+								UART_Write(DEBUG_PORT,buf,5);
+						}
 //						UART_Write(DEBUG_PORT,buf,length);
 				}
 				else
@@ -630,6 +664,9 @@ void CommandProcess()
 								buf[5]=BatteryPercent;
 								UART_Write(DEBUG_PORT,buf,6);
 						}
+						if((buf[0] == 0x01)&&(buf[1] == 02)){ 
+								PD10=1;
+						}
 				}
 				else
 				{
@@ -688,12 +725,13 @@ void loop()
 #ifdef OPTION_RC
 	if(GetFrameCount()==MOTORS_ESC_DELAY)
 		motorsStart();
-  //if((GetFrameCount()%2)==1)
-	//	Get_PSDIR();
+  if((GetFrameCount()%10)==0)
+		Get_PSDIR();
     stabilizer();
 	if((GetFrameCount()%10)==0)
 	{
 		sleep_mode(sleep);
+		factory_reset(factory);
 		UpdateLED();
 //		GetFusionSpeed();
 	}

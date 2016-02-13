@@ -185,12 +185,12 @@ void commanderGetRPY()
 #endif
 #endif
 #endif
-
+  
   rc_roll =0;
 	if(nvtGetAHRSID()==0)
     rc_pitch = 0;
   else {
-    rc_pitch-=25;
+    rc_pitch-=20;
   }
 	
   if(!magMode)
@@ -801,8 +801,9 @@ void stabilizer()
 
 #ifdef ABROBOT
   if((GetSensorCalState()&(1<<GYRO))&& (motor_enable==1)) {
-    if(nvtGetAHRSID()==0)
+    if(nvtGetAHRSID()==0) {
       distributePower(true);
+    }
     else
       distributeTiltPower(true);
   }

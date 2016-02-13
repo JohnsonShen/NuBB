@@ -52,6 +52,7 @@ volatile    uint8_t             IR2_State = 0;       // IR State
 volatile    uint8_t             IR2_LDC_Ready = 0;   // LeaDer Code is Ready
 volatile    uint8_t             IR2_CTC_Ready = 0;   // CusTomer Code is Ready
 uint8_t             IR2_CODE[13]  =   {0x00, 0x00, 0x00, 0x00};
+extern uint32_t COM2_LED_R, COM2_LED_G, COM2_LED_B, COM2_Blink,COM2_LED_EN;
 
 void IrDa_NEC_Rx(uint32_t u32Time)
 {

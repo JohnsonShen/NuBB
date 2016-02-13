@@ -425,9 +425,7 @@ void I2C0_Callback_Rx_Continue(uint32_t status, uint8_t Addr)
 
 void Get_PSDIR(void)
 {
-		uint8_t i,data[2];
-		for(i=0;i<10;i++)
-		{
+		uint8_t data[2];
 				if(FB==0)
 						I2C0_readBytes(FPSD, 0x5E, 2, data,1);
 				else
@@ -439,16 +437,15 @@ void Get_PSDIR(void)
 						IR_f=(IR_f+IR_12);
 				else
 						cnf++;
-				if ((cnt%1000)==0)
+		if ((cnt%20)==0)
 				{
-						IR=IR_f/(1000-cnf)/64;
-						if (cnf>500)
+				IR=IR_f/(20-cnf)/64;
+				if (cnf>10)
 								IR=64;
 						IR_f=0;
 						cnf=0;
-						FB^=1;
 //						printf("%d: %d\n",FB,IR);
-				}
+				FB^=1;
 		}
 }
 

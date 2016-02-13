@@ -42,8 +42,9 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #include "Def.h"
 #include "Timer_Ctrl.h"
 extern uint32_t LED1_R, LED1_G, LED1_B, Blink,brea,LED2_R, LED2_G, LED2_B, Blink2,brea2,brea_cnt;
-uint32_t ini_Tick=0,cur_Tick,sleep_ini_Tick=0,sleep_cur_Tick;
-uint8_t ini_start=0,asic_ready=1,ini_LED;
+extern uint8_t keyin;
+uint32_t ini_Tick=0,cur_Tick,sleep_ini_Tick=0,sleep_cur_Tick,factory_ini_Tick=0,factory_cur_Tick;
+uint8_t ini_start=0,asic_ready=1,ini_LED,factory=0,asic_pow_err=0;
 
 void asic_init(void)
 {
@@ -52,6 +53,13 @@ void asic_init(void)
 	GPIO_CLR_INT_FLAG(PD, BIT2);
 	GPIO_ENABLE_DEBOUNCE(PD, BIT2);
 	GPIO_SET_DEBOUNCE_TIME(GPIO_DBCTL_DBCLKSRC_HCLK,GPIO_DBCTL_DBCLKSEL_32768);
+	if(PD2==0)
+	{
+			factory=1;
+			asic_ready=1;
+			keyin=0;
+			while(PD2==0);
+	}
 	GPIO_EnableInt(PD, 2, GPIO_INT_FALLING);
 	
 	SYS->GPD_MFPH = (SYS->GPD_MFPH & (~SYS_GPD_MFPH_PD10MFP_Msk));	//asic power control
@@ -61,7 +69,21 @@ void asic_init(void)
 
 uint8_t asic_power(uint8_t key)
 {
-	if (asic_ready==1)
+	if((asic_ready==0)&&(PD10==0)&&(asic_pow_err==0)&&(keyin==0))
+	{
+			asic_pow_err=getTickCount();
+	}
+	else if((asic_ready==0)&&(PD10==1)&&(asic_pow_err!=0)&&(keyin==0))
+	{
+			asic_pow_err=0;
+	}
+	else if(((getTickCount()-asic_pow_err)>10000)&&(asic_pow_err!=0)&&(keyin==0))
+	{
+			PD10=1;
+			asic_pow_err=0;
+	}
+	
+	if ((asic_ready==1)&&(factory==0))
 	{
 			ini_start=0;
 			key=0;
@@ -82,6 +104,7 @@ uint8_t asic_power(uint8_t key)
 			brea2=1;
 			PD10=0;
 			ini_start=1;
+			asic_pow_err=0;
 			ini_LED=(brea_cnt%4)/2;
 	}
 	else if((key==1)&&(ini_start>=1)&&(asic_ready==0))
@@ -115,7 +138,7 @@ uint8_t asic_power(uint8_t key)
 					PD10=0;
 					ini_start=2;
 			}
-			else if (((getTickCount()-ini_Tick)>600000)&&(ini_start==2)&&(asic_ready==0))
+			else if (((getTickCount()-ini_Tick)>600000)&&(ini_start==2)&&(asic_ready==0)&&(factory==0))
 			{
 					PD10=1;
 					ini_start=0;
@@ -127,10 +150,10 @@ uint8_t asic_power(uint8_t key)
 
 uint8_t factory_reset(uint8_t status)
 {
-	if ((status==1)&&(ini_Tick==0))
+	if ((status==1)&&(factory_ini_Tick==0))
 	{
-			ini_Tick=getTickCount();
-			cur_Tick=ini_Tick;
+			factory_ini_Tick=getTickCount();
+			factory_cur_Tick=factory_ini_Tick;
 			LED1_R=0;
 			LED1_G=0;
 			LED1_B=0;
@@ -145,11 +168,11 @@ uint8_t factory_reset(uint8_t status)
 	}
 	else if((status==1)&&(getTickCount()>=5000))
 	{
-			if (getTickCount()>(cur_Tick+500))
+			if (getTickCount()>(factory_cur_Tick+500))
 			{
 					uint32_t LEDM;
-					cur_Tick=getTickCount();
-					LEDM=(cur_Tick-ini_Tick)/1000;
+					factory_cur_Tick=getTickCount();
+					LEDM=(factory_cur_Tick-factory_ini_Tick)/1000;
 					if ((LEDM%2)==1)
 					{
 						LED1_R=100;
