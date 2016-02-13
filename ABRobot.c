@@ -683,15 +683,7 @@ void loop()
 	else
 		nvtUpdateAHRS(SENSOR_ACC|SENSOR_GYRO|SENSOR_HALL);
 
-	if((GetFrameCount()%40)==0) {
-    if(GetAHRSReport()==0)
-      report_sensors();
-  }
-  else if((GetFrameCount()%40)==1) {
-    if(GetAHRSReport()==1)
-      report_sensors();
-  }
-	
+
 	
 #ifdef OPTION_RC
 	if(GetFrameCount()==MOTORS_ESC_DELAY)
@@ -706,6 +698,20 @@ void loop()
 //		GetFusionSpeed();
 	}
 #endif
+  
+  if((GetFrameCount()%40)==0) {
+    if(GetAHRSReport()==0) {
+      report_sensors();
+      //printf("AHRSID:%d,%d\n", nvtGetAHRSID(),GetFrameCount());
+    }
+  }
+  else if((GetFrameCount()%40)==1) {
+    if(GetAHRSReport()==1) {
+      report_sensors();
+      //printf("AHRSID:%d,%d\n", nvtGetAHRSID(),GetFrameCount());
+    }
+  }
+	
   IncFrameCount(1);
 }
 

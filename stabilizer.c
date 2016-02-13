@@ -139,10 +139,11 @@ void commanderGetRPY()
   
 	getRC(rcData);
 	rc_roll = (rcData[ROLL_CH] - RC_ROLL_MID);
-	rc_pitch = (rcData[THR_CH] - RC_PITCH_MID); //(rcData[PITCH_CH] - RC_PITCH_MID);
+	rc_pitch = -(rcData[THR_CH] - RC_PITCH_MID); //(rcData[PITCH_CH] - RC_PITCH_MID);
 	rc_yaw = (rcData[YAW_CH] - RC_YAW_MID);
 	rc_aux1 = rcData[AUX1_CH];
-  
+  //if((GetFrameCount()%500)<=1)
+  //  printf("rc_pitch0:%d",rc_pitch);
   if((rc_roll!=0)||((rc_aux1!=128)&&(rc_aux1!=255))) {
     motor_enable = 1;
     PB5=1;
@@ -187,7 +188,10 @@ void commanderGetRPY()
 
   rc_roll =0;
 	if(nvtGetAHRSID()==0)
-  rc_pitch = 0;
+    rc_pitch = 0;
+  else {
+    rc_pitch-=25;
+  }
 	
   if(!magMode)
     HoldHead();
@@ -353,12 +357,20 @@ void commanderGetRPY()
 	else
     eulerRollDesired = 0;
 	
-	if(rc_pitch>RC_PITCH_DEAD_BAND)
-		eulerPitchDesired = (rc_pitch*PITCH_DEG_MAX/(RC_PITCH_MAX-RC_PITCH_MID));
-	else if(rc_pitch<-RC_PITCH_DEAD_BAND)
-		eulerPitchDesired = -(rc_pitch*PITCH_DEG_MAX/(RC_PITCH_MIN-RC_PITCH_MID));
-	else
-    eulerPitchDesired = 0;
+  if(nvtGetAHRSID()==0) {
+    if(rc_pitch>RC_PITCH_DEAD_BAND)
+      eulerPitchDesired = (rc_pitch*PITCH_DEG_MAX/(RC_PITCH_MAX-RC_PITCH_MID));
+    else if(rc_pitch<-RC_PITCH_DEAD_BAND)
+      eulerPitchDesired = -(rc_pitch*PITCH_DEG_MAX/(RC_PITCH_MIN-RC_PITCH_MID));
+    else
+      eulerPitchDesired = 0;
+  }
+  else 
+    eulerPitchDesired = rc_pitch;
+  
+  //if((GetFrameCount()%500)<=1)
+  //  printf("eulerPitchDesired,rc_pitch:%f %d\n",eulerPitchDesired,rc_pitch);
+    
 }
 void commanderGetThrust()
 {
@@ -534,12 +546,12 @@ static void distributeTiltPower(bool On)
   MotorCal_t* MotorCal;
 
 	actuatorMotor[C] = Actuator.actuatorPitch;
-	Actuator.actuatorPitch=0;
+	//Actuator.actuatorPitch=0;
 	
-	nvtActuatorFusionFilter(&Actuator);
-  MotorCal = GetMotorCal();
-	nvtSetMotorSmooth(MotorCal);
-	nvtGetActuatorSmooth(actuatorMotor);
+// 	nvtActuatorFusionFilter(&Actuator);
+//   MotorCal = GetMotorCal();
+// 	nvtSetMotorSmooth(MotorCal);
+// 	nvtGetActuatorSmooth(actuatorMotor);
 
 	
 	  /* ROBOT tilt forward
@@ -731,6 +743,10 @@ void stabilizer()
 		vSpeed = 0;
 	
 	//printf("%f  %f  %f \n", eulerRollActual, eulerPitchActual, eulerYawActual);
+  /*if(nvtGetAHRSID()==1) {
+    if((GetFrameCount()%50)>=1)
+      printf("%f  %f  %f \n", eulerRollDesired, eulerPitchDesired, eulerYawDesired);
+  }*/
 	controllerCorrectAttitudePID(eulerRollActual, eulerPitchActual, eulerYawActual,
 				eulerRollDesired, eulerPitchDesired, eulerYawDesired,\
 				&rollRateDesired, &pitchRateDesired, &yawRateDesired);
@@ -756,18 +772,31 @@ void stabilizer()
   }
 #endif
 #endif
-  //printf("%f  %f  %f \n", rollRateDesired, pitchRateDesired, yawRateDesired);
+  /*if(nvtGetAHRSID()==1) {
+    if((GetFrameCount()%50)>=1)
+      printf("%f  %f  %f \n", rollRateDesired, pitchRateDesired, yawRateDesired);
+  }*/
 	nvtGetCalibratedGYRO(gyro);
 	controllerCorrectRatePID(gyro[0], gyro[1], gyro[2],
 				rollRateDesired, pitchRateDesired, yawRateDesired);
   
   controllerCorrectSpeedPID((float)FusionSpeed,speedDesired);
 #ifdef ABROBOT
+  
   controllerGetActuatorOutput(&Actuator.actuatorRoll, &Actuator.actuatorPitch, &Actuator.actuatorYaw, &Actuator.actuatorSpeed);
+  if(nvtGetAHRSID()==1) {
+    Actuator.actuatorThrust = 0;
+    Actuator.actuatorRoll = 0;
+    Actuator.actuatorYaw = 0;
+    Actuator.actuatorSpeed = 0;
+  }
 #else
 	controllerGetActuatorOutput(&Actuator.actuatorRoll, &Actuator.actuatorPitch, &Actuator.actuatorYaw);
 #endif
-
+  /*if(nvtGetAHRSID()==1) {
+    if((GetFrameCount()%40)==1)
+      printf("P0:%d ", Actuator.actuatorPitch);
+  }*/
 	//printf("actuatorThrust:%d",actuatorThrust);
 
 #ifdef ABROBOT
@@ -784,6 +813,10 @@ void stabilizer()
     else
       distributeTiltPower(false);
   }
+  /*if(nvtGetAHRSID()==1) {
+    if((GetFrameCount()%40)==1)
+      printf("P1:%d \n", Actuator.actuatorPitch);
+  }*/
   /**if((GetFrameCount()%18)==0)
     //printf("Th,Roll,Pitch,Yaw, Speed:%d,%d,%d,%d, %d \n",Actutaor.actuatorThrust,Actutaor.actuatorRoll, Actutaor.actuatorPitch, -Actutaor.actuatorYaw, Actutaor.actuatorSpeed);
     printf("Yaw, Head, Speed:%d,%f,%d\n",Actutaor.actuatorYaw, Actutaor.headHold, Actutaor.actuatorSpeed);*/
