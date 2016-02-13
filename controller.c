@@ -83,10 +83,16 @@ bool LoadFlashPID()
 	}
 	else {
 		pidInit(&pidRoll[GetAHRSReport()], 0, PID_ROLL_KP, PID_ROLL_KI, PID_ROLL_KD, IMU_UPDATE_DT);
-		pidInit(&pidPitch[GetAHRSReport()], 0, PID_PITCH_KP, PID_PITCH_KI, PID_PITCH_KD, IMU_UPDATE_DT);
+    if(GetAHRSReport()==0)
+      pidInit(&pidPitch[0], 0, PID_PITCH_KP, PID_PITCH_KI, PID_PITCH_KD, IMU_UPDATE_DT);
+    else
+      pidInit(&pidPitch[1], 0, PID_PITCH_KP_CAM, PID_PITCH_KI_CAM, PID_PITCH_KD_CAM, IMU_UPDATE_DT);
 		pidInit(&pidYaw[GetAHRSReport()], 0, PID_YAW_KP, PID_YAW_KI, PID_YAW_KD, IMU_UPDATE_DT);
 		pidInit(&pidRollRate[GetAHRSReport()], 0, PID_ROLL_RATE_KP, PID_ROLL_RATE_KI, PID_ROLL_RATE_KD, IMU_UPDATE_DT);
-		pidInit(&pidPitchRate[GetAHRSReport()], 0, PID_PITCH_RATE_KP, PID_PITCH_RATE_KI, PID_PITCH_RATE_KD, IMU_UPDATE_DT);
+    if(GetAHRSReport()==0)
+      pidInit(&pidPitchRate[0], 0, PID_PITCH_RATE_KP, PID_PITCH_RATE_KI, PID_PITCH_RATE_KD, IMU_UPDATE_DT);
+    else
+      pidInit(&pidPitchRate[1], 0, PID_PITCH_RATE_KP_CAM, PID_PITCH_RATE_KI_CAM, PID_PITCH_RATE_KD_CAM, IMU_UPDATE_DT);
 		pidInit(&pidYawRate[GetAHRSReport()], 0, PID_YAW_RATE_KP, PID_YAW_RATE_KI, PID_YAW_RATE_KD, IMU_UPDATE_DT);
 #ifdef ABROBOT
     pidInit(&pidSpeed[GetAHRSReport()], 0, PID_SPEED_KP, PID_SPEED_KI, PID_SPEED_KD, IMU_UPDATE_DT);

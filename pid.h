@@ -34,9 +34,15 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #define RATE_KP_DC 2.01f
 #define RATE_KI_DC 0.1f
 #define RATE_KD_DC 0.0f
-#define LEVEL_KP_DC 20.4f
+#define LEVEL_KP_DC 40.8f
 #define LEVEL_KI_DC 4.5f
 #define LEVEL_KD_DC 0
+#define RATE_KP_CAM 2.01f
+#define RATE_KI_CAM 0.1f
+#define RATE_KD_CAM 0.0f
+#define LEVEL_KP_CAM 40.8f
+#define LEVEL_KI_CAM 4.5f
+#define LEVEL_KD_CAM 0
 #endif
 #ifdef HEX6X
 #ifdef H630
@@ -89,6 +95,9 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #define PID_PITCH_RATE_KP  RATE_KP_DC
 #define PID_PITCH_RATE_KI  RATE_KI_DC
 #define PID_PITCH_RATE_KD  RATE_KD_DC
+#define PID_PITCH_RATE_KP_CAM  RATE_KP_CAM
+#define PID_PITCH_RATE_KI_CAM  RATE_KI_CAM
+#define PID_PITCH_RATE_KD_CAM  RATE_KD_CAM
 #else
 #define PID_PITCH_RATE_KP  RATE_KP_1806
 #define PID_PITCH_RATE_KI  RATE_KI_1806
@@ -125,6 +134,9 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #define PID_PITCH_KP  LEVEL_KP_DC
 #define PID_PITCH_KI  LEVEL_KI_DC
 #define PID_PITCH_KD  LEVEL_KD_DC
+#define PID_PITCH_KP_CAM  LEVEL_KP_CAM
+#define PID_PITCH_KI_CAM  LEVEL_KI_CAM
+#define PID_PITCH_KD_CAM  LEVEL_KD_CAM
 #else
 #define PID_PITCH_KP  LEVEL_KP_1806
 #define PID_PITCH_KI  LEVEL_KI_1806
