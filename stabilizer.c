@@ -29,8 +29,8 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #include "Report.h"
 #include "RC.h"
 #ifdef ABROBOT
-#define ROLL_DEG_MAX  10
-#define PITCH_DEG_MAX 30
+#define ROLL_DEG_MAX  70
+#define PITCH_DEG_MAX 70
 #else
 #define ROLL_DEG_MAX  60
 #define PITCH_DEG_MAX 60
@@ -119,6 +119,8 @@ void DetectFlip()
 		flip = 1;
 	else if(eulerPitchActual<-PITCH_DEG_MAX)
 		flip = 1;
+  //if((GetFrameCount()%40)==0)
+  //  printf("flip,R,P:%d,%f,%f\n", flip,eulerRollActual,eulerPitchActual);
 }
 float GetAccWZ()
 {
@@ -704,7 +706,7 @@ void stabilizer()
 #endif	
 	nvtGetEulerRPY(Euler);
 #ifdef ABROBOT
-  eulerRollActual = 0;
+  eulerRollActual = Euler[0];
 #ifdef DEGREE
   if(Euler[2]<0) {
     eulerYawActual = Euler[2] + 360;
@@ -719,8 +721,8 @@ void stabilizer()
   eulerYawActual = Euler[2];
 #endif
 	eulerPitchActual = Euler[1];
-
 	DetectFlip();
+  eulerRollActual= 0;
 	
 	commanderGetRPY();
 	

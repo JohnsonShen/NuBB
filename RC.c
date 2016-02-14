@@ -122,7 +122,7 @@ void MotorArm()
 	motorArm = 1;
 	arm_count = 0;
 	idle_count = 0;
-	ClearFlip();
+	//ClearFlip();
   motor_enable=1;
 	PB5=1;	//enable motor power
 }
@@ -145,10 +145,11 @@ void MotorDisArm()
 	motor_enable=0;
 	PB5=0;
   Channel_Reset();
+  ClearFlip();
 }
 void armDetect()
 {
-	if(motorArm==0) {
+/*	if(motorArm==0) {
 #if STACK_BARO
 		if((rcData[THR_CH]<RC_MIN_CHECK)&&(rcData[YAW_CH]>RC_ARM_MAX_CHECK)&&(!GetAltHoldMode()))
 #else
@@ -192,7 +193,9 @@ void armDetect()
 		
 		if(GetFlip()) 
 			MotorDisArm();
-	}
+	}*/
+  if(GetFlip()) 
+			MotorDisArm();
 }
 bool checkArm()
 {
