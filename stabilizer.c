@@ -30,7 +30,7 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #include "RC.h"
 #ifdef ABROBOT
 #define ROLL_DEG_MAX  70
-#define PITCH_DEG_MAX 60
+#define PITCH_DEG_MAX 65
 #else
 #define ROLL_DEG_MAX  60
 #define PITCH_DEG_MAX 60
