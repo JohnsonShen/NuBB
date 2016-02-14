@@ -30,7 +30,7 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #include "RC.h"
 #ifdef ABROBOT
 #define ROLL_DEG_MAX  70
-#define PITCH_DEG_MAX 70
+#define PITCH_DEG_MAX 60
 #else
 #define ROLL_DEG_MAX  60
 #define PITCH_DEG_MAX 60
@@ -43,6 +43,7 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #define ACTUATOR_DEAD_ZONE 0
 #endif
 #define YAW_SPEED 200
+#define FLIP_COUNTER 100
 static float gyro[3]; // Gyro axis data in deg/s
 static float eulerRollActual;
 static float eulerPitchActual;
@@ -71,7 +72,7 @@ uint32_t motorPowerM[MOTOR_NUMBER];
 #ifdef ABROBOT
 BLDC_MOTOR_T BLDC_MOTOR[MOTOR_NUMBER];
 #endif
-
+extern int flip_count;
 char flip = 0;
 ACTUATOR_T* getActuator()
 {
@@ -108,17 +109,22 @@ void stabilizerInit(void)
 	pitchRateDesired = 0;
 	yawRateDesired = 0;
 }
+int flip_count=0;
 void DetectFlip()
 {
 	if(eulerRollActual>ROLL_DEG_MAX)
-		flip = 1;
+		flip_count++;
 	else if(eulerRollActual<-ROLL_DEG_MAX)
-		flip = 1;
+		flip_count++;
 	
 	if(eulerPitchActual>PITCH_DEG_MAX)
-		flip = 1;
+		flip_count++;
 	else if(eulerPitchActual<-PITCH_DEG_MAX)
-		flip = 1;
+		flip_count++;
+  
+  if(flip_count>FLIP_COUNTER)
+    flip = 1;
+    
   //if((GetFrameCount()%40)==0)
   //  printf("flip,R,P:%d,%f,%f\n", flip,eulerRollActual,eulerPitchActual);
 }
@@ -133,6 +139,7 @@ char GetFlip()
 void ClearFlip()
 {
 	flip = 0;
+  flip_count=0;
 }
 
 void commanderGetRPY()
