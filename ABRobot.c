@@ -531,6 +531,7 @@ void CommandProcess()
 								RxData.BUF[0] = temp>>2;
 								RxData.BUF[4] = (RxData.BUF[4]&0x3F)||((temp&0x03)<<6);
 								RxData.num=5;
+                MotorArm();
 						}
 				}
 				else
