@@ -59,7 +59,7 @@ void Channel_Reset(void)
 	for(i = 0; i<RC_CHANS; i++)
 		rcData[i] = 1512;
   
-  rcData[AUX1_CH] = 128;
+  rcData[AUX1_CH] = 255;
   
   RxChannelInit();
   //printf("->Channel_Reset\n");
