@@ -67,7 +67,7 @@ bool LoadFlashPID()
 	bool FlashValid;
 	FlashValid = GetFlashPID(PID_FIELD);
 	IMU_UPDATE_DT = getUpdateDT();
-	if(FlashValid) {
+	if(0/*FlashValid*/) {
 		pidInit(&pidRoll[GetAHRSReport()], 0, PID_FIELD[0], PID_FIELD[1], PID_FIELD[2], IMU_UPDATE_DT);
 		pidInit(&pidPitch[GetAHRSReport()], 0, PID_FIELD[3], PID_FIELD[4], PID_FIELD[5], IMU_UPDATE_DT);
 		pidInit(&pidYaw[GetAHRSReport()], 0, PID_FIELD[6], PID_FIELD[7], PID_FIELD[8], IMU_UPDATE_DT);
