@@ -119,13 +119,12 @@ void GPD_IRQHandler(void)
 				uint8_t motor_temp;
 				__disable_irq();
 				GPIO_CLR_INT_FLAG(PD, BIT2);
-				motor_temp=motor_enable;
+				motor_temp=checkArm();
 				if (PD10==1)
 						keyin=1;
 				while (PD2==0)
 				{
-						motor_enable=0;
-						PB5=0;
+						MotorDisArm();
  
 						TIMER_Delay(TIMER0,100);
 						key_cnt++;
@@ -157,9 +156,11 @@ void GPD_IRQHandler(void)
 				{
 						PA->DOUT = 0x8048|(PA->DOUT&BIT12);						
 						TIMER_Delay(TIMER0,100000);
-						PA->DOUT = 0|(PA->DOUT&BIT12);	
-						motor_enable=motor_temp;
-						PB5=motor_temp;
+						PA->DOUT = 0|(PA->DOUT&BIT12);
+            if(motor_temp)
+              MotorArm();
+            else
+              MotorDisArm();
     }
 				__enable_irq();
     }
@@ -474,14 +475,11 @@ void CommandProcess()
 						else if((buf[0] == 0x05)&&(buf[1] == 00)){								
 								if ((buf[2]==1)&&(PB14==1))
 								{
-										motor_enable=1;
-										PB5=1;	//enable motor power
+										MotorArm();
 								}
 								else if ((buf[2]==0)&&(PB14==1))
 								{
-                  motor_enable=0;
-									PB5=0;
-                  Channel_Reset();
+                  MotorDisArm();
 								}
 						}
 						else if((buf[0] == 0x06)&&(buf[1] == 00)){								
@@ -599,7 +597,7 @@ void CommandProcess()
 								buf[1]=3;
 								buf[2]=0x01;
 								buf[3]=0x04;
-								buf[4]=motor_enable;
+								buf[4]=checkArm();
 								UART_Write(DEBUG_PORT,buf,5);
 						}
 //						UART_Write(DEBUG_PORT,buf,length);

@@ -37,7 +37,7 @@ static char Calbrate = 0;
 static int arm_count = 0;
 static int idle_count = 0;
 bool beSSVConnected = false;
-
+extern int16_t  motor_enable;
 void RC_Enable(char enable)
 {
 	if(IsSSVConnected())
@@ -123,8 +123,8 @@ void MotorArm()
 	arm_count = 0;
 	idle_count = 0;
 	ClearFlip();
-	if(IsSSVConnected())
-	RC_CheckFlyMode();
+  motor_enable=1;
+	PB5=1;	//enable motor power
 }
 bool IsRCConnected()
 {
@@ -142,8 +142,9 @@ void MotorDisArm()
 	motorArm = 0;
 	arm_count = 0;
 	idle_count = 0;
-	Calbrate = 0;
-	led_arm_state(LED_STATE_OFF);
+	motor_enable=0;
+	PB5=0;
+  Channel_Reset();
 }
 void armDetect()
 {
@@ -195,7 +196,7 @@ void armDetect()
 }
 bool checkArm()
 {
-	return Calbrate;
+	return motor_enable;
 }
 void getRC(int16_t* rc)
 {

@@ -312,8 +312,7 @@ void UpdateBattery()
 			Dis_charge_pin = Dis_charge;
 			if (Dis_charge_pin==0)
 			{
-					motor_enable=0;
-					PB5=0;
+					MotorDisArm();
 			}
 			bat_cnt++;	
 	}

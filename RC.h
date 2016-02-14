@@ -92,4 +92,5 @@ int16_t GetRCThrust(void);
 int16_t GetRCAltitude(void);
 void Channel_Reset(void);
 void RxChannelInit(void);
+void MotorArm(void);
 #endif

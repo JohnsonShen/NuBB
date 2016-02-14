@@ -27,6 +27,7 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #include "Timer_Ctrl.h"
 #include "stabilizer.h"
 #include "Report.h"
+#include "RC.h"
 #ifdef ABROBOT
 #define ROLL_DEG_MAX  10
 #define PITCH_DEG_MAX 30
@@ -145,8 +146,7 @@ void commanderGetRPY()
   //if((GetFrameCount()%500)<=1)
   //  printf("rc_pitch0:%d",rc_pitch);
   if((rc_roll!=0)||((rc_aux1!=128)&&(rc_aux1!=255))) {
-    motor_enable = 1;
-    PB5=1;
+    MotorArm();
   }
 #ifdef ABROBOT
   //if((rc_pitch==0)&&(rc_roll==0)&&(rc_aux1==128))
@@ -294,7 +294,7 @@ void commanderGetRPY()
   //    printf("headHoldrc_yaw,Desire,Actual:%f %d %f %f\n",headHold,rc_yaw, eulerYawDesired, eulerYawActual);
 #else
 #ifdef WSPEED_DEGREE
-  if(motor_enable==false) {
+  if(checkArm()==false) {
     HoldHead();
     yaw_last = 0;
   }
@@ -385,8 +385,7 @@ void commanderGetThrust()
   if(Actuator.actuatorThrust!=0) {
     //if((GetFrameCount()%500)==0)
     //  printf("actuatorThrust,motor_enable:%d,%d\n",Actuator.actuatorThrust,motor_enable);
-    motor_enable = 1;
-    PB5=1;
+    MotorArm();
   }
   speedDesired = Actuator.actuatorThrust/6;
   
@@ -543,16 +542,7 @@ static void distributePower(bool On)
 static void distributeTiltPower(bool On)
 {
   int16_t actuatorMotor[3];
-  MotorCal_t* MotorCal;
-
 	actuatorMotor[C] = Actuator.actuatorPitch;
-	//Actuator.actuatorPitch=0;
-	
-// 	nvtActuatorFusionFilter(&Actuator);
-//   MotorCal = GetMotorCal();
-// 	nvtSetMotorSmooth(MotorCal);
-// 	nvtGetActuatorSmooth(actuatorMotor);
-
 	
 	  /* ROBOT tilt forward
      Right Motor CCW for balance
@@ -800,7 +790,7 @@ void stabilizer()
 	//printf("actuatorThrust:%d",actuatorThrust);
 
 #ifdef ABROBOT
-  if((GetSensorCalState()&(1<<GYRO))&& (motor_enable==1)) {
+  if((GetSensorCalState()&(1<<GYRO))&&checkArm()) {
     if(nvtGetAHRSID()==0) {
       distributePower(true);
     }
