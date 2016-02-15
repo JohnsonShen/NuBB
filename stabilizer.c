@@ -80,7 +80,8 @@ ACTUATOR_T* getActuator()
 }
 void HoldHead(void)
 {
-	headHold = eulerYawActual;
+  if(nvtGetAHRSID()==0)
+    headHold = eulerYawActual;
 }
 float getHeadHold() 
 {
@@ -195,7 +196,7 @@ void commanderGetRPY()
 #endif
 #endif
   
-  //rc_roll =0;
+  rc_roll =0;
 	if(nvtGetAHRSID()==0)
     rc_pitch = 0;
   else {
