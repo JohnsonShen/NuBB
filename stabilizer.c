@@ -804,7 +804,11 @@ void stabilizer()
       distributePower(true);
     }
     else
+#ifdef V241
+      distributeTiltPower(false);
+#else
       distributeTiltPower(true);
+#endif
   }
   else {
     controllerResetAllPID();

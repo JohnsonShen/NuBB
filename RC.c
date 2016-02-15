@@ -194,8 +194,11 @@ void armDetect()
 		if(GetFlip()) 
 			MotorDisArm();
 	}*/
+#ifdef V241
+#else
   if(GetFlip()) 
 			MotorDisArm();
+#endif
 }
 bool checkArm()
 {

@@ -52,7 +52,7 @@ int freq=0;
 #endif
 #include "MPU6050.h"
 #define MAG_INTERVAL 4
-#define code_version 0x00020200	//code version: 0.190
+#define code_version 0x00020400
 extern RF_DATA RxData;
 uint32_t COM_LED_R, COM_LED_G, COM_LED_B, COM_Blink,COM2_LED_R, COM2_LED_G, COM2_LED_B, COM2_Blink,COM_LED_EN=0,COM2_LED_EN=0,code_ver,code_update;
 extern uint32_t LED1_R, LED1_G, LED1_B;

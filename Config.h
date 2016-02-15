@@ -32,5 +32,6 @@ _|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|             *
 #define BLDC
 //#define GPS
 #define ABROBOT
+//#ifdef V241
 #endif //CONFIG_H_
 
