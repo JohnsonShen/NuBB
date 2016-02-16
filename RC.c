@@ -46,20 +46,22 @@ void RC_Enable(char enable)
 		RC_PWM_Enable(enable);
 }
 void RxChannelInit()
-{
-  char i;
-	for(i = 0; i<RC_CHANS; i++)
-		rcValue[i] = 1512;
-  
+{  
+  rcValue[ROLL_CH] = 1512;
+  rcValue[PITCH_CH] = 1512;
+  rcValue[YAW_CH] = 1512;
+  //rcData[THR_CH] = 1512;
   rcValue[AUX1_CH] = 128;
+  rcValue[AUX2_CH] = 1512;
 }
 void Channel_Reset(void)
 {
-  char i;
-	for(i = 0; i<RC_CHANS; i++)
-		rcData[i] = 1512;
-  
+  rcData[ROLL_CH] = 1512;
+  rcData[PITCH_CH] = 1512;
+  rcData[YAW_CH] = 1512;
+  //rcData[THR_CH] = 1512;
   rcData[AUX1_CH] = 255;
+  rcData[AUX2_CH] = 1512;
   
   RxChannelInit();
   //printf("->Channel_Reset\n");
