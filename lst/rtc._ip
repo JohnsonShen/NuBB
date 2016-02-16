@@ -1,4 +1,0 @@
-"..\..\..\Library\StdDriver\src\rtc.c" -E -c --cpu Cortex-M4.fp -D__MICROLIB -O0 --apcs=interwork -I..\..\..\Library\Device\Nuvoton\M451Series\Include -I..\..\..\Library\StdDriver\inc -I.\include -I..\AHRSLib\include 
--I C:\Keil\ARM\RV31\INC 
--I C:\Keil\ARM\CMSIS\Include 
--DM451 -o ".\lst\rtc.i"
