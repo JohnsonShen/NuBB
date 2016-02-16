@@ -1,9 +1,0 @@
-.\obj\ak8975.o: ak8975.c
-.\obj\ak8975.o: AK8975.h
-.\obj\ak8975.o: Def.h
-.\obj\ak8975.o: Config.h
-.\obj\ak8975.o: ..\AHRSLib\include\AHRSLib.h
-.\obj\ak8975.o: C:\Keil\ARM\ARMCC\bin\..\include\stdint.h
-.\obj\ak8975.o: C:\Keil\ARM\ARMCC\bin\..\include\stdbool.h
-.\obj\ak8975.o: I2CDev.h
-.\obj\ak8975.o: Timer_Ctrl.h
